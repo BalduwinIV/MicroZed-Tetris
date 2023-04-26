@@ -75,4 +75,7 @@
 #define BOTTOM_HSV_VALUE        60      /* Blocks bottom color */
 #define TOP_HSV_SATURATION      30      /* Blocks top color */
 
+unsigned short hsv2rgb_lcd(int hue, int saturation, int value);
+unsigned short rgb888_to_rgb565(int color);
+
 #endif

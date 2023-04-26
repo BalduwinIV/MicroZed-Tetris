@@ -29,47 +29,73 @@
 int main(int argc, char *argv[])
 {
 
-  /* Serialize execution of applications */
+    /* Serialize execution of applications */
 
-  /* Try to acquire lock the first */
-  if (serialize_lock(1) <= 0) {
-    printf("System is occupied\n");
+    /* Try to acquire lock the first */
+    if (serialize_lock(1) <= 0) {
+        printf("System is occupied\n");
 
-    if (1) {
-      printf("Waitting\n");
-      /* Wait till application holding lock releases it or exits */
-      serialize_lock(0);
+        if (1) {
+            printf("Waitting\n");
+            /* Wait till application holding lock releases it or exits */
+            serialize_lock(0);
+        }
     }
-  }
 
     unsigned char *mem_base;
-  uint32_t val_line=5;
-  int i;
-  printf("Hello world\n");
+    unsigned char *parlcd_mem_base;
+    int i,j,k;
+    unsigned int c;
 
-  sleep(1);
+    printf("Starting...\n");
 
-  /*
-   * Setup memory mapping which provides access to the peripheral
-   * registers region of RGB LEDs, knobs and line of yellow LEDs.
-   */
-  mem_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
+    mem_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
 
-  /* If mapping fails exit with error code */
-  if (mem_base == NULL)
+      /* If mapping fails exit with error code */
+    if (mem_base == NULL)
     exit(1);
 
-  for (i=0; i<30; i++) {
-     *(volatile uint32_t*)(mem_base + SPILED_REG_LED_LINE_o) = val_line;
-     val_line<<=1;
-     printf("LED val 0x%x\n", val_line);
-     sleep(1);
-  }
+    parlcd_mem_base = map_phys_address(PARLCD_REG_BASE_PHYS, PARLCD_REG_SIZE, 0);
 
-  printf("Goodbye world\n");
+    if (parlcd_mem_base == NULL) {
+        exit(1);
+    }
 
-  /* Release the lock */
-  serialize_unlock();
+    parlcd_hx8357_init(parlcd_mem_base);
 
-  return 0;
+    parlcd_write_cmd(parlcd_mem_base, 0x2c);
+    for (i = 0; i < 320; i++) {
+        for (j = 0; j < 480; j++) {
+            c = 0;
+            parlcd_write_data(parlcd_mem_base, c);
+        }
+    }
+
+    parlcd_write_cmd(parlcd_mem_base, 0x2c);
+    for (i = 0; i < 320; i++) {
+        for (j = 0; j < 480; j++) {
+            c = ((i & 0x1f) << 11) | (j & 0x1f);
+            parlcd_write_data(parlcd_mem_base, c);
+        }
+    }
+
+    struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 20 * 1000 * 1000};
+    for (k = 0; k < 60; k++) {
+        parlcd_write_cmd(parlcd_mem_base, 0x2c);
+        for (i = 0; i < 320; i++) {
+            for (j = 0; j < 480; j++) {
+                c = (((i+k) & 0x1f) << 11) | ((j+k) & 0x1f);
+                parlcd_write_data(parlcd_mem_base, c);
+            }
+        }
+
+        clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
+    }
+
+    printf("Stopping...\n");
+
+    /* Release the lock */
+    serialize_unlock();
+
+    return 0;
 }
