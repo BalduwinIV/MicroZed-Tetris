@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
         int black = BLACK_RGB565;
 
         char str[] = "0";
-        draw_string(screen, x_pos, y_pos, str, white, black);
+        draw_string(screen, (*(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o) & 0x00ff0000) >> 16, (*(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o) & 0x0000ff00) >> 8, str, white, black);
         printf("%x\n", *(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o));
 
         parlcd_write_cmd(parlcd_mem_base, 0x2c);
