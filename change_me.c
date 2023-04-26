@@ -57,7 +57,6 @@ int main(int argc, char *argv[])
 
     unsigned char *mem_base;
     unsigned char *parlcd_mem_base;
-    unsigned char *knobs_mem_base;
     int y,x;
 
     printf("Starting...\n");
@@ -71,12 +70,6 @@ int main(int argc, char *argv[])
     parlcd_mem_base = map_phys_address(PARLCD_REG_BASE_PHYS, PARLCD_REG_SIZE, 0);
 
     if (parlcd_mem_base == NULL) {
-        exit(1);
-    }
-
-    knobs_mem_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, SPILED_REG_KNOBS_8BIT_o);
-
-    if (knobs_mem_base == NULL) {
         exit(1);
     }
 
@@ -99,7 +92,7 @@ int main(int argc, char *argv[])
 
         char str[] = "0";
         draw_string(screen, x_pos, y_pos, str, white, black);
-        printf("%x\n", *(volatile uint32_t*)(knobs_mem_base));
+        printf("%x\n", *(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o));
 
         parlcd_write_cmd(parlcd_mem_base, 0x2c);
         for (y = 0; y < 320; y++) {
