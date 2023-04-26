@@ -54,33 +54,10 @@ int main(int argc, char *argv[])
     }
 
     unsigned int **screen = (unsigned int **)malloc(320 * sizeof(unsigned int *));
-    for (int y = 0; y < 320; y++) {
-        screen[y] = (unsigned int *)malloc(480 * sizeof(unsigned int));
-        for (int x = 0; x < 480; x++) {
-            screen[y][x] = 0x0000;
-        }
-    }
-
-    int grey = GREY_RGB565;
-    int blue = BORDER_RGB565;
-    int white = WHITE_RGB565;
-    int black = BLACK_RGB565;
-
-    draw_rect(screen, 3, 0, 120, 3, grey);
-    draw_rect(screen, 0, 3, 3, 314, grey);
-    draw_rect(screen, 3, 317, 120, 3, grey);
-    draw_rect(screen, 123, 3, 3, 314, grey);
-    draw_rect(screen, 3, 3, 3, 3, grey);
-    draw_rect(screen, 3, 314, 3, 3, grey);
-    draw_rect(screen, 120, 3, 3, 3, grey);
-    draw_rect(screen, 120, 314, 3, 3, grey);
-    draw_rect(screen, 6, 6, 114, 3, blue);
-
-    char str[] = "SCORE 999";
-    draw_string(screen, 20, 20, str, white, black);
 
     unsigned char *mem_base;
     unsigned char *parlcd_mem_base;
+    unsigned char *knobs_mem_base;
     int y,x;
 
     printf("Starting...\n");
@@ -97,13 +74,40 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    knobs_mem_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, SPILED_REG_KNOBS_8BIT_o);
+
+    if (knobs_mem_base == NULL) {
+        exit(1);
+    }
+
     parlcd_hx8357_init(parlcd_mem_base);
 
-    parlcd_write_cmd(parlcd_mem_base, 0x2c);
-    for (y = 0; y < 320; y++) {
-        for (x = 0; x < 480; x++) {
-            parlcd_write_data(parlcd_mem_base, screen[y][x]);
+    struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 20 * 1000 * 1000};
+
+    int is_running = 1;
+    int x_pos = 20, y_pos = 20;
+    while (is_running) {
+        for (int y = 0; y < 320; y++) {
+            screen[y] = (unsigned int *)malloc(480 * sizeof(unsigned int));
+            for (int x = 0; x < 480; x++) {
+                screen[y][x] = 0x0000;
+            }
         }
+
+        int white = WHITE_RGB565;
+        int black = BLACK_RGB565;
+
+        char str[] = "0";
+        draw_string(screen, x_pos, y_pos, str, white, black);
+        printf("%x\n", (volatile uint32_t*)(knobs_mem_base));
+
+        parlcd_write_cmd(parlcd_mem_base, 0x2c);
+        for (y = 0; y < 320; y++) {
+            for (x = 0; x < 480; x++) {
+                parlcd_write_data(parlcd_mem_base, screen[y][x]);
+            }
+        }
+        clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
     }
 
     printf("Stopping...\n");
