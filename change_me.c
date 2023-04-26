@@ -25,6 +25,17 @@
 #include "mzapo_phys.h"
 #include "mzapo_regs.h"
 #include "serialize_lock.h"
+
+#include "colors.h"
+#include "font.h"
+
+void draw_rect(unsigned int **screen, int x, int y, int width, int height, int color) {
+    for (int yi = 0; yi < height; yi++) {
+        for (int xi = 0; xi < width; xi++) {
+            screen[y+yi][x+xi] = color;
+        }
+    }
+}
  
 int main(int argc, char *argv[])
 {
@@ -42,10 +53,30 @@ int main(int argc, char *argv[])
         }
     }
 
+    unsigned int **screen = (unsigned int **)malloc(320 * sizeof(unsigned int *));
+    for (int y = 0; y < 320; y++) {
+        screen[y] = (unsigned int *)malloc(480 * sizeof(unsigned int));
+        for (int x = 0; x < 480; x++) {
+            screen[y][x] = 0x0000;
+        }
+    }
+
+    int grey = GREY_RGB565;
+    int blue = BORDER_RGB565;
+
+    draw_rect(screen, 3, 0, 120, 3, grey);
+    draw_rect(screen, 0, 3, 3, 314, grey);
+    draw_rect(screen, 3, 317, 120, 3, grey);
+    draw_rect(screen, 123, 3, 3, 314, grey);
+    draw_rect(screen, 3, 3, 3, 3, grey);
+    draw_rect(screen, 3, 314, 3, 3, grey);
+    draw_rect(screen, 120, 3, 3, 3, grey);
+    draw_rect(screen, 120, 314, 3, 3, grey);
+    draw_rect(screen, 6, 6, 114, 3, blue);
+
     unsigned char *mem_base;
     unsigned char *parlcd_mem_base;
-    int i,j,k;
-    unsigned int c;
+    int y,x;
 
     printf("Starting...\n");
 
@@ -64,32 +95,10 @@ int main(int argc, char *argv[])
     parlcd_hx8357_init(parlcd_mem_base);
 
     parlcd_write_cmd(parlcd_mem_base, 0x2c);
-    for (i = 0; i < 320; i++) {
-        for (j = 0; j < 480; j++) {
-            c = 0;
-            parlcd_write_data(parlcd_mem_base, c);
+    for (y = 0; y < 320; y++) {
+        for (x = 0; x < 480; x++) {
+            parlcd_write_data(parlcd_mem_base, screen[y][x]);
         }
-    }
-
-    parlcd_write_cmd(parlcd_mem_base, 0x2c);
-    for (i = 0; i < 320; i++) {
-        for (j = 0; j < 480; j++) {
-            c = ((i & 0x1f) << 11) | (j & 0x1f);
-            parlcd_write_data(parlcd_mem_base, c);
-        }
-    }
-
-    struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 20 * 1000 * 1000};
-    for (k = 0; k < 60; k++) {
-        parlcd_write_cmd(parlcd_mem_base, 0x2c);
-        for (i = 0; i < 320; i++) {
-            for (j = 0; j < 480; j++) {
-                c = (((i+k) & 0x1f) << 11) | ((j+k) & 0x1f);
-                parlcd_write_data(parlcd_mem_base, c);
-            }
-        }
-
-        clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
     }
 
     printf("Stopping...\n");
