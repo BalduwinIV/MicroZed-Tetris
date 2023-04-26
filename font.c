@@ -24,8 +24,7 @@
 
 */
 
-static unsigned int characters[36][14] {
-
+static unsigned int characters[36][14] = {
     /*0*/
     {
         0x3f00,
@@ -132,7 +131,7 @@ static unsigned int characters[36][14] {
         0x7F80,
         0x3F00,
         0x0
-    }
+    },
 
     /*6*/
     {
@@ -143,49 +142,49 @@ static unsigned int characters[36][14] {
         0xC0C0,
         0xC000,
         0xFF80,
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-    }
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0
+    },
 
     /*7*/
     {
         0x0,
         0xFF80,
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-    }
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0
+    },
 
     /*8*/
     {
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0,
+        0x0
     },
 
     /*9*/
@@ -435,27 +434,38 @@ static unsigned int characters[36][14] {
  * @param bg_color  character background color;
  * */
 static void draw_char(unsigned int **screen, int x, int y, char ch, unsigned short fg_color, unsigned short bg_color) {
-    unsigned char wanted_ch = ch-65;
-    int font_x;
+    /* if ch in range <48, 57> then it is a number from 0 to 9 */
+    /* else then it is a letter. */
+    unsigned char wanted_ch = (ch<=57) ? ch-48 : ch-65;
+
     for (int font_y = 0; font_y < 14; font_y++) {
-        font_x = x;
-        if (characters[wanted_ch][y+font_y] & 0x8000) screen[y][font_x++] = fg_color else screen[y][font_x++] = bg_color;
-        // if (characters[wanted_ch][y+font_y] & 0x4000) ...
-        // if (characters[wanted_ch][y+font_y] & 0x2000) ...
-        // if (characters[wanted_ch][y+font_y] & 0x1000) ...
-        // if (characters[wanted_ch][y+font_y] & 0x0800) ...
-        // if (characters[wanted_ch][y+font_y] & 0x0400) ...
-        // if (characters[wanted_ch][y+font_y] & 0x0200) ...
-        // if (characters[wanted_ch][y+font_y] & 0x0100) ...
-        // if (characters[wanted_ch][y+font_y] & 0x0080) ...
-        // if (characters[wanted_ch][y+font_y] & 0x0040) ...
+        screen[y][x] = (characters[wanted_ch][y+font_y] & 0x8000) ? fg_color : bg_color;    /* 1st bit */
+        screen[y][x+1] = (characters[wanted_ch][y+font_y] & 0x4000) ? fg_color : bg_color;  /* 2nd bit */
+        screen[y][x+2] = (characters[wanted_ch][y+font_y] & 0x2000) ? fg_color : bg_color;  /* 3rd bit */
+        screen[y][x+3] = (characters[wanted_ch][y+font_y] & 0x1000) ? fg_color : bg_color;  /* 4th bit */
+        screen[y][x+4] = (characters[wanted_ch][y+font_y] & 0x0800) ? fg_color : bg_color;  /* 5th bit */
+        screen[y][x+5] = (characters[wanted_ch][y+font_y] & 0x0400) ? fg_color : bg_color;  /* 6th bit */
+        screen[y][x+6] = (characters[wanted_ch][y+font_y] & 0x0200) ? fg_color : bg_color;  /* 7th bit */
+        screen[y][x+7] = (characters[wanted_ch][y+font_y] & 0x0100) ? fg_color : bg_color;  /* 8th bit */
+        screen[y][x+8] = (characters[wanted_ch][y+font_y] & 0x0080) ? fg_color : bg_color;  /* 9th bit */
+        screen[y][x+9] = (characters[wanted_ch][y+font_y] & 0x0040) ? fg_color : bg_color;  /* 10th bit */
+    }
+}
+
+static void draw_whitespace(unsigned int **screen, int x, int y, unsigned short color) {
+    for (int yi = 0; yi < 14; yi++) {
+        for (int xi = 0; xi < 4; xi++) {
+            screen[y+yi][x+xi] = color;
+        }
     }
 }
 
 void draw_string(unsigned int **screen, int x, int y, char *str, unsigned short fg_color, unsigned short bg_color) {
+    int ch_x_pos = x;
     for (int ch_i = 0; str[ch_i] != '\0'; ch_i++) {
-        draw_char(screen, x, y, str[ch_i], fg_color, bg_color);
-        x += 14;
+        draw_char(screen, ch_x_pos, y, str[ch_i], fg_color, bg_color);
+        draw_whitespace(screen, ch_x_pos+10, y, bg_color);
+        ch_x_pos += 14;
     }
 }
 
