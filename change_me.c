@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 
         char str[] = "0";
         draw_string(screen, x_pos, y_pos, str, white, black);
-        printf("%x\n", (volatile uint32_t*)(knobs_mem_base));
+        printf("%x\n", *(volatile uint32_t*)(knobs_mem_base));
 
         parlcd_write_cmd(parlcd_mem_base, 0x2c);
         for (y = 0; y < 320; y++) {
