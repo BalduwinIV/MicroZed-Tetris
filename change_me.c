@@ -63,6 +63,8 @@ int main(int argc, char *argv[])
 
     int grey = GREY_RGB565;
     int blue = BORDER_RGB565;
+    int white = WHITE_RGB565;
+    int black = BLACK_RGB565;
 
     draw_rect(screen, 3, 0, 120, 3, grey);
     draw_rect(screen, 0, 3, 3, 314, grey);
@@ -73,6 +75,9 @@ int main(int argc, char *argv[])
     draw_rect(screen, 120, 3, 3, 3, grey);
     draw_rect(screen, 120, 314, 3, 3, grey);
     draw_rect(screen, 6, 6, 114, 3, blue);
+
+    char str[] = "SCORE 999";
+    draw_string(screen, 20, 20, str, white, black);
 
     unsigned char *mem_base;
     unsigned char *parlcd_mem_base;
