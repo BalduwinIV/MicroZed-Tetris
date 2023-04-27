@@ -15,24 +15,25 @@ int main() {
         }
     }
 
-/*   0, 1, 2, 3, 4, 5, 6, 7, 8, 9 */
-    char str1[] = "0123456789";
+/*   A, B, C, D, E, F, G, H, I, J */
+    char str1[] = "ABCDEFGHIJ";
     draw_string(screen, 10, 10, str1, WHITE_RGB565, BLACK_RGB565);
 
-/*   A, B, C, D, E, F, G, H, I, J */
-    char str2[] = "ABCDEFGHIJ";
+/*   K, L, M, N, O, P, Q, R, S, T */
+    char str2[] = "KLMNOPQRST";
     draw_string(screen, 10, 30, str2, WHITE_RGB565, BLACK_RGB565);
 
-/*   K, L, M, N, O, P, Q, R, S, T */
-    char str3[] = "KLMNOPQRST";
+/*   U, V, W, X, Y, Z */
+    char str3[] = "UVWXYZ";
     draw_string(screen, 10, 50, str3, WHITE_RGB565, BLACK_RGB565);
 
-/*   U, V, W, X, Y, Z */
-    char str4[] = "UVWXYZ";
+/*   0, 1, 2, 3, 4, 5, 6, 7, 8, 9 */
+    char str4[] = "0123456789";
     draw_string(screen, 10, 70, str4, WHITE_RGB565, BLACK_RGB565);
 
-    char str5[] = "SCORE 999";
-    draw_string(screen, 10, 120, str5, WHITE_RGB565, BLACK_RGB565);
+/*   !?()<unknown character>*/
+    char str5[] = "!?()@";
+    draw_string(screen, 10, 90, str5, WHITE_RGB565, BLACK_RGB565);
 
     display(screen);
 }
