@@ -17,6 +17,10 @@ void print_best_score(unsigned int **screen, char* best_score){
     draw_string(screen, 372, 93, best_score, WHITE_RGB565, BLACK_RGB565);
 }
 
+void print_destroyed_lines(unsigned int **screen, char* amount){
+    draw_string(screen, 372, 240, amount, WHITE_RGB565, BLACK_RGB565);
+}
+
 int find_position(unsigned char block_type){
     int position;
     if (block_type == GREEN_BLOCK_TYPE) {
