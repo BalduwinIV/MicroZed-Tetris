@@ -32,26 +32,17 @@ int menu(unsigned int** screen, int x, int y, int frame){
 
     int vote = 0;
     while (1){
+        if ((*(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o) & 0x2000000) >> 25) break;
 
-        if ((*(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o) & 0x2000000) >> 25){
-            break;
-        }
+        int diff = ((*(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o) & 0x0000ff00) >> 8) - cur_knob_value;
+      
+        if (diff == 0) continue;
 
-        else if (((*(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o) & 0x0000ff00) >> 8) > cur_knob_value){
-            if(vote < 2){
-                vote++;
-            }
-        }
+        if (diff > 0 && diff < 3) vote++;
+        else vote--;
 
-        else if (((*(volatile uint32_t*)(mem_base + SPILED_REG_KNOBS_8BIT_o) & 0x0000ff00) >> 8) < cur_knob_value){
-            if (vote > 0){
-                vote--;
-            }
-        }
-
-        else {
-            continue;
-        }
+        if (vote < 0) vote = 0;
+        else if (vote > 2) vote = 2;
 
         draw_rect (screen, x + vote*line_width, y, x + vote*line_width - 1, y + line_length, WHITE_RGB565);
         draw_rect (screen, x + ((vote+1)%3)*line_width, y, x + ((vote+1)%3)*line_width - 1, y + line_length, BLACK_RGB565);
