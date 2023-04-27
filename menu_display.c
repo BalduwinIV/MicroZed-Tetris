@@ -19,7 +19,6 @@ void draw_rect(unsigned int **screen, int x, int y, int dest_x, int dest_y, int 
 
 int menu(unsigned int** screen, int x, int y, int frame){
     
-    int frame = 3;
     int line_length = 2*frame + 10*11 + 4*9 + 12;
     int line_width = 4*frame + 14;
     unsigned char* mem_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
