@@ -1,12 +1,12 @@
 #ifndef STATS_H
 #define STATS_H
 
-void print_stats(unsigned int **screen, unsigned char block_type, char* amount, char* score);
+void print_statistics(unsigned int **screen, unsigned int *statistics);
 
-void print_blocks_amount(unsigned int **screen, unsigned char block_type, char* amount);
+void print_score(unsigned int **screen, unsigned int score);
 
-void print_destroyed_lines(unsigned int **screen, char* amount);
+void print_best_score(unsigned int **screen, unsigned int best_score);
 
-void print_best_score(unsigned int **screen, char* best_score);
+void print_destroyed_lines_number(unsigned int **screen, unsigned int lines_amount);
 
 #endif
