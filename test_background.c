@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "image_graphics.h"
-#include "colors.h"
-#include "font.h"
-#include "graphics.h"
+#include "game/image_graphics.h"
+#include "game/tools/colors.h"
+#include "game/tools/font.h"
+#include "game/graphics.h"
 
-void draw_rect(unsigned int **screen, int x, int y, int dest_x, int dest_y, int color) {
+void draw_rect(unsigned short **screen, int x, int y, int dest_x, int dest_y, int color) {
     for (int y_temp = y; y_temp <= dest_y; y_temp++) {
         for (int x_temp = x; x_temp <= dest_x; x_temp++) {
             screen[y_temp][x_temp] = color;
@@ -15,18 +15,18 @@ void draw_rect(unsigned int **screen, int x, int y, int dest_x, int dest_y, int 
 }
 
 int main() {
-    unsigned int **screen = (unsigned int **)malloc(320 * sizeof(unsigned int *));
+    unsigned short **screen = (unsigned short **)malloc(320 * sizeof(unsigned short *));
     for (int y = 0; y < 320; y++) {
-        screen[y] = (unsigned int *)malloc(480 * sizeof(unsigned int));
+        screen[y] = (unsigned short *)malloc(480 * sizeof(unsigned short));
         for (int x = 0; x < 480; x++) {
-            screen[y][x] = 0x000000;
+            screen[y][x] = 0x0000;
         }
     }
 
-    unsigned int grey = GREY_RGB888;
-    unsigned int blue = BORDER_RGB888;
-    unsigned int white = WHITE_RGB888;
-    unsigned int black = BLACK_RGB888;
+    unsigned int grey = GREY_RGB565;
+    unsigned int blue = BORDER_RGB565;
+    unsigned int white = WHITE_RGB565;
+    unsigned int black = BLACK_RGB565;
 
     /* Statistics */
         /* Grey border */
@@ -147,12 +147,12 @@ int main() {
     draw_rect(screen, 358, 311, 470, 313, blue);
     draw_rect(screen, 358, 281, 360, 310, blue);
 
-    unsigned int red = RED_RGB888;
-    unsigned int orange = ORANGE_RGB888;
-    unsigned int yellow = YELLOW_RGB888;
-    unsigned int green = GREEN_RGB888;
-    unsigned int blue_letter = BLUE_RGB888;
-    unsigned int purple = PURPLE_RGB888;
+    unsigned int red = RED_RGB565;
+    unsigned int orange = ORANGE_RGB565;
+    unsigned int yellow = YELLOW_RGB565;
+    unsigned int green = GREEN_RGB565;
+    unsigned int blue_letter = BLUE_RGB565;
+    unsigned int purple = PURPLE_RGB565;
 
     char red_t[] = "T";
     char orange_e[] = "E";
@@ -169,21 +169,16 @@ int main() {
     draw_string(screen, 444, 289, purple_s, purple, black);
     /* End tetris logo */
 
-    FILE *data_f = fopen("screen.txt", "w+");
-    fprintf(data_f, "unsigned int background[320][480] = {\n");
+    FILE *data_f = fopen("screen_background.data", "wb");
     for (int y = 0; y < 320; y++) {
-        fprintf(data_f, "\t{ ");
         for (int x = 0; x < 480; x++) {
-            if (x < 479) {
-                fprintf(data_f, "0x%x, ", screen[y][x]);
-            } else {
-                fprintf(data_f, "0x%x", screen[y][x]);
-            }
+            fputc((screen[y][x] & 0xff00) >> 8, data_f);
+            fputc(screen[y][x] & 0x00ff, data_f);
         }
-        fprintf(data_f, " },\n");
     }
-    fprintf(data_f, "};\n");
     fclose(data_f);
+
+    draw_background(screen);
 
     display(screen);
 }

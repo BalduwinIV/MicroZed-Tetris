@@ -1,15 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
-#include "image_graphics.h"
-#include "colors.h"
-#include "font.h"
+#include "game/image_graphics.h"
+#include "game/tools/colors.h"
+#include "game/tools/font.h"
 
 int main() {
-    unsigned int **screen = (unsigned int **)malloc(320 * sizeof(unsigned int *));
+    unsigned short **screen = (unsigned short **)malloc(320 * sizeof(unsigned short *));
     for (int y = 0; y < 320; y++) {
-        screen[y] = (unsigned int *)malloc(480 * sizeof(unsigned int));
+        screen[y] = (unsigned short *)malloc(480 * sizeof(unsigned short));
         for (int x = 0; x < 480; x++) {
             screen[y][x] = 0x000000;
         }
@@ -32,8 +31,11 @@ int main() {
     draw_string(screen, 10, 70, str4, WHITE_RGB565, BLACK_RGB565);
 
 /*   !?()<unknown character>*/
-    char str5[] = "!?()@";
+    char str5[] = "!?()<>@";
     draw_string(screen, 10, 90, str5, WHITE_RGB565, BLACK_RGB565);
+
+    char str6[] = "WHITE SPACE";
+    draw_string(screen, 10, 110, str6, WHITE_RGB565, BLACK_RGB565);
 
     display(screen);
 }
