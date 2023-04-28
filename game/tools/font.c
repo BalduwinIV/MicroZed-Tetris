@@ -24,7 +24,7 @@
 
 */
 
-static unsigned short characters[41][14] = {
+static unsigned short characters[43][14] = {
     /*
      * |  ******  |
      * | ******** |
@@ -1349,6 +1349,73 @@ static unsigned short characters[41][14] = {
         0x1c00
     },
 
+    /* 
+     * |       ** |
+     * |       ** |
+     * |     **   |
+     * |     **   |
+     * |   **     |
+     * |   **     |
+     * | **       |
+     * | **       |
+     * |   **     |
+     * |   **     |
+     * |     **   |
+     * |     **   |
+     * |       ** |
+     * |       ** |
+     * */
+    {
+        0x0180,
+        0x0180,
+        0x0600,
+        0x0600,
+        0x1800,
+        0x1800,
+        0x6000,
+        0x6000,
+        0x1800,
+        0x1800,
+        0x0600,
+        0x0600,
+        0x0180,
+        0x0180
+    }, 
+     
+    /* 
+     * | **       |
+     * | **       |
+     * |   **     |
+     * |   **     |
+     * |     **   |
+     * |     **   |
+     * |       ** |
+     * |       ** |
+     * |     **   |
+     * |     **   |
+     * |   **     |
+     * |   **     |
+     * | **       |
+     * | **       |
+
+    */
+
+    {
+        0x6000,
+        0x6000,
+        0x1800,
+        0x1800,
+        0x0600,
+        0x0600,
+        0x0180,
+        0x0180,
+        0x0600,
+        0x0600,
+        0x1800,
+        0x1800,
+        0x6000,
+        0x6000
+    },
     /* unknown character 
      * |* * * * * |
      * | * * * * *|
@@ -1420,8 +1487,12 @@ static void draw_char(unsigned short **screen, int x, int y, char ch, unsigned i
         wanted_ch = 38;
     } else if (ch == ')') {
         wanted_ch = 39;
-    } else {
+    } else if (ch == '<') {
         wanted_ch = 40;
+    } else if (ch == '>') {
+        wanted_ch = 41;
+    } else {
+        wanted_ch = 42;
     }
 
     for (int font_y = 0; font_y < 14; font_y++) {

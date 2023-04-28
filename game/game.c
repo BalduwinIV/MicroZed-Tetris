@@ -8,8 +8,10 @@
 #include "../hardware/mzapo_parlcd.h"
 #include "../hardware/mzapo_phys.h"
 #include "../hardware/mzapo_regs.h"
+#include "tools/colors.h"
 #include "graphics.h"
 #include "stats.h"
+#include "pause.h"
 
 #define BEST_SCORE_FILENAME     "bestscore.data"
 
@@ -29,17 +31,42 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
         fprintf(stderr, "Malloc failed for gamefield.\n");
         exit(1);
     }
+    unsigned char block_type = GREEN_BLOCK_TYPE;
     for (int y = 0; y < 15; y++) {
-        gamefield[y] = (unsigned char *)malloc(2 * sizeof(unsigned char));
+        gamefield[y] = (unsigned char *)malloc(5 * sizeof(unsigned char));
+        for (int x = 0; x < 5; x++) {
+            gamefield[y][x] = block_type << 4;
+            block_type = (block_type + 1) % 8;
+            gamefield[y][x] |= block_type;
+            block_type = (block_type + 1) % 8;
+        }
         if (!gamefield[y]) {
             fprintf(stderr, "Malloc failed for gamefield.\n");
             exit(1);
         }
     }
 
+    unsigned char pause_option;
+    uint8_t first_press = 1;
+
     draw_background(screen);
+    draw_gamefield(screen, gamefield);
     unsigned char game_is_running = 1;
     while (game_is_running) {
+        if (is_green_knob_pressed(io) && !first_press) {
+            printf("Pause...\n");
+            pause_option = pause(screen, io);
+            if (pause_option == GO_TO_MENU) {
+                printf("Go to menu...\n");
+                game_is_running = 0;
+                break;
+            }
+            printf("Continue...\n");
+            first_press = 1;
+        }
+        if (first_press && !is_green_knob_pressed(io)) {
+            first_press = 0;
+        }
         print_statistics(screen, statistics);
         print_score(screen, score);
         print_best_score(screen, best_score);

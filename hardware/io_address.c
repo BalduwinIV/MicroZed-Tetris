@@ -39,7 +39,7 @@ uint8_t get_red_knob_value(phys_addr_t *io) {
 }
 
 uint8_t is_red_knob_pressed(phys_addr_t *io) {
-    return (*(volatile uint32_t *)(io->KNOBS) * 0x04000000) >> 26;
+    return (*(volatile uint32_t *)(io->KNOBS) & 0x04000000) >> 26;
 }
 
 uint8_t get_green_knob_value(phys_addr_t *io) {
@@ -47,7 +47,7 @@ uint8_t get_green_knob_value(phys_addr_t *io) {
 }
 
 uint8_t is_green_knob_pressed(phys_addr_t *io) {
-    return (*(volatile uint32_t *)(io->KNOBS) * 0x02000000) >> 25;
+    return (*(volatile uint32_t *)(io->KNOBS) & 0x02000000) >> 25;
 }
 
 uint8_t get_blue_knob_value(phys_addr_t *io) {
@@ -55,7 +55,7 @@ uint8_t get_blue_knob_value(phys_addr_t *io) {
 }
 
 uint8_t is_blue_knob_pressed(phys_addr_t *io) {
-    return (*(volatile uint32_t *)(io->KNOBS) * 0x01000000) >> 24;
+    return (*(volatile uint32_t *)(io->KNOBS) & 0x01000000) >> 24;
 }
 
 void set_led_line_value(phys_addr_t *io, uint32_t value) {

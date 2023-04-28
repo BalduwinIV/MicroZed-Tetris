@@ -26,6 +26,38 @@ void draw_gamefield(unsigned short **screen, unsigned char** field){
     }
 }
 
+void draw_rect(unsigned short **screen, int x, int y, int dest_x, int dest_y, int color) {
+    for (int y_temp = y; y_temp <= dest_y; y_temp++) {
+        for (int x_temp = x; x_temp <= dest_x; x_temp++) {
+            screen[y_temp][x_temp] = color;
+        }
+    }
+}
+
+void draw_checkbox(unsigned short **screen, int x, int y, unsigned char state) {
+    if (state) {
+        for (int y_temp = y; y_temp <= y + 9; y_temp++) {
+            for (int x_temp = x; x_temp <= x + 9; x_temp++) {
+                if (y_temp == y || y_temp == y + 9 || x_temp == x || x_temp == x + 9) {
+                    screen[y_temp][x_temp] = BLACK_RGB565;
+                } else {
+                    screen[y_temp][x_temp] = WHITE_RGB565;
+                }
+            }
+        }
+    } else {
+        for (int y_temp = y; y_temp <= y + 9; y_temp++) {
+            for (int x_temp = x; x_temp <= x + 9; x_temp++) {
+                if (y_temp == y || y_temp == y + 9 || x_temp == x || x_temp == x + 9) {
+                    screen[y_temp][x_temp] = WHITE_RGB565;
+                } else {
+                    screen[y_temp][x_temp] = BLACK_RGB565;
+                }
+            }
+        }
+    }
+}
+
 void draw_block(unsigned short **screen, int x, int y, unsigned char block_type) {
     unsigned int main_color, top_color, sides_color, bottom_color;
 

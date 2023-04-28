@@ -55,16 +55,21 @@ int main(int argc, char *argv[])
     phys_addr_t *io = init_io();
 
     unsigned char menu_option;
+    unsigned char blocks_speed;
+    unsigned char show_next_element;
     unsigned char program_is_running = 1;
     while (program_is_running) {
         printf("Starting menu...\n");
-        menu_option = menu(screen, io);
+        menu_option = menu(screen, io, &blocks_speed, &show_next_element);
+        printf("Menu option: %d\n", menu_option);
+        printf("Blocks speed: %d\n", blocks_speed);
+        printf("Show next element? : %d\n", show_next_element);
         if (menu_option == EXIT) {
             program_is_running = 0;
             break;
         } else if (menu_option == NEW_GAME) {
             printf("Starting game...\n");
-            start_game(screen, io, 4, 1);
+            start_game(screen, io, blocks_speed, show_next_element);
             printf("Game ended...\n");
         }
     }
