@@ -1,5 +1,5 @@
 #ifndef STATS_H
-#define STATS_h
+#define STATS_H
 
 void print_stats(unsigned int **screen, unsigned char block_type, char* amount, char* score);
 

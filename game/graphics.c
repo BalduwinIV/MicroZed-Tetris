@@ -1,5 +1,17 @@
 #include "graphics.h"
-#include "colors.h"
+#include "tools/colors.h"
+
+/* Undefine when working with hardware. */
+#define TESTING
+
+void draw_gamefield(unsigned int **screen, char** field){
+    for (int y = 0; y < 15; y++){
+        for(int x = 0; x < 5; x++){
+            draw_block(screen, GAMEFIELD_X + (x*40), GAMEFIELD_Y + (y*20), (field[y][x]>>4) & 0xf);
+            draw_block(screen, GAMEFIELD_X + (x*40 + 20), GAMEFIELD_Y + (y*20), field[y][x] & 0xf);
+        }
+    }
+}
 
 void draw_block(unsigned int **screen, int x, int y, unsigned char block_type) {
     unsigned int main_color, top_color, sides_color, bottom_color;
@@ -10,97 +22,103 @@ void draw_block(unsigned int **screen, int x, int y, unsigned char block_type) {
         sides_color = BLACK_RGB565;
         bottom_color = BLACK_RGB565;
     } else if (block_type == GREEN_BLOCK_TYPE) {
+#ifndef TESTING
         /* To lcd display. */
-        /*
         main_color = GREEN_RGB565;
         top_color = GREEN_BLOCK_TOP565;
         sides_color = GREEN_BLOCK_SIDES565;
         bottom_color = GREEN_BLOCK_BOTTOM565;
-        */
-
+#else
         /* To image */
         main_color = GREEN_RGB888;
         top_color = GREEN_BLOCK_TOP888;
         sides_color = GREEN_BLOCK_SIDES888;
         bottom_color = GREEN_BLOCK_BOTTOM888;
+#endif
     } else if (block_type == RED_BLOCK_TYPE) {
+#ifndef TESTING
         /* To lcd display. */
-        /*
         main_color = RED_RGB565;
         top_color = RED_BLOCK_TOP565;
         sides_color = RED_BLOCK_SIDES565;
         bottom_color = RED_BLOCK_BOTTOM565;
-        */
+#else
         /* To image */
         main_color = RED_RGB888;
         top_color = RED_BLOCK_TOP888;
         sides_color = RED_BLOCK_SIDES888;
         bottom_color = RED_BLOCK_BOTTOM888;
+#endif
     } else if (block_type == PURPLE_BLOCK_TYPE) {
+#ifndef TESTING
         /* To lcd display. */
-        /*
         main_color = PURPLE_RGB565;
         top_color = PURPLE_BLOCK_TOP565;
         sides_color = PURPLE_BLOCK_SIDES565;
         bottom_color = PURPLE_BLOCK_BOTTOM565;
-        */
+#else
         /* To image */
         main_color = PURPLE_RGB888;
         top_color = PURPLE_BLOCK_TOP888;
         sides_color = PURPLE_BLOCK_SIDES888;
         bottom_color = PURPLE_BLOCK_BOTTOM888;
+#endif
     } else if (block_type == YELLOW_BLOCK_TYPE) {
+#ifndef TESTING
         /* To lcd display. */
-        /*
         main_color = YELLOW_RGB565;
         top_color = YELLOW_BLOCK_TOP565;
         sides_color = YELLOW_BLOCK_SIDES565;
         bottom_color = YELLOW_BLOCK_BOTTOM565;
-        */
+#else
         /* To image */
         main_color = YELLOW_RGB888;
         top_color = YELLOW_BLOCK_TOP888;
         sides_color = YELLOW_BLOCK_SIDES888;
         bottom_color = YELLOW_BLOCK_BOTTOM888;
+#endif
     } else if (block_type == DARKBLUE_BLOCK_TYPE) {
+#ifndef TESTING
         /* To lcd display. */
-        /*
         main_color = DARKBLUE_RGB565;
         top_color = DARKBLUE_BLOCK_TOP565;
         sides_color = DARKBLUE_BLOCK_SIDES565;
         bottom_color = DARKBLUE_BLOCK_BOTTOM565;
-        */
+#else
         /* To image */
         main_color = DARKBLUE_RGB888;
         top_color = DARKBLUE_BLOCK_TOP888;
         sides_color = DARKBLUE_BLOCK_SIDES888;
         bottom_color = DARKBLUE_BLOCK_BOTTOM888;
+#endif
     } else if (block_type == ORANGE_BLOCK_TYPE) {
+#ifndef TESTING
         /* To lcd display. */
-        /*
         main_color = ORANGE_RGB565;
         top_color = ORANGE_BLOCK_TOP565;
         sides_color = ORANGE_BLOCK_SIDES565;
         bottom_color = ORANGE_BLOCK_BOTTOM565;
-        */
+#else
         /* To image */
         main_color = ORANGE_RGB888;
         top_color = ORANGE_BLOCK_TOP888;
         sides_color = ORANGE_BLOCK_SIDES888;
         bottom_color = ORANGE_BLOCK_BOTTOM888;
+#endif
     } else if (block_type == BLUE_BLOCK_TYPE) {
+#ifndef TESTING
         /* To lcd display. */
-        /*
         main_color = BLUE_RGB565;
         top_color = BLUE_BLOCK_TOP565;
         sides_color = BLUE_BLOCK_SIDES565;
         bottom_color = BLUE_BLOCK_BOTTOM565;
-        */
+#else
         /* To image */
         main_color = BLUE_RGB888;
         top_color = BLUE_BLOCK_TOP888;
         sides_color = BLUE_BLOCK_SIDES888;
         bottom_color = BLUE_BLOCK_BOTTOM888;
+#endif
     }
 
     for (int yi = 0; yi < BLOCK_SIZE; yi++) {

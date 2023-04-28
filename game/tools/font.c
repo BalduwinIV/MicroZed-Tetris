@@ -1386,7 +1386,7 @@ static unsigned int characters[41][14] = {
 
 static void draw_whitespace(unsigned int **screen, int x, int y, unsigned int color) {
     for (int yi = 0; yi < 14; yi++) {
-        for (int xi = 0; xi < 4; xi++) {
+        for (int xi = 0; xi < 10; xi++) {
             screen[y+yi][x+xi] = color;
         }
     }
