@@ -66,7 +66,7 @@
 #define PURPLE_BLOCK_SIDES888   0x7d27cc
 #define PURPLE_BLOCK_SIDES565   0x7938
 #define PURPLE_BLOCK_BOTTOM888  0x5d1d99
-#define PURPLE_BLOCK_BOTTOM56i5  0x58f2
+#define PURPLE_BLOCK_BOTTOM565  0x58f2
                              
 /* Square-type blocks color */
 #define YELLOW_BLOCK_TYPE       4

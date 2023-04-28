@@ -9,7 +9,7 @@
 #define BLOCK_TYPES                     7
 #define STATISTICS_TEXT_POSITION_X      64
 #define SCORE_NUMBER_POSITION_X         372
-#define SCORE_NUMBER_POSITION_Y         18
+#define SCORE_NUMBER_POSITION_Y         38
 #define BEST_SCORE_NUMBER_POSITION_X    372 
 #define BEST_SCORE_NUMBER_POSITION_Y    93
 #define LINES_NUMBER_POSITION_X         419
@@ -88,7 +88,7 @@ static char *int_to_str6(unsigned int value) {
     return number;
 }
 
-void print_statistics(unsigned int **screen, unsigned int *statistics) {
+void print_statistics(unsigned short **screen, unsigned int *statistics) {
     char *blocks_number_str;
     for (int statistics_i = 0; statistics_i < BLOCK_TYPES; statistics_i++) {
         blocks_number_str = int_to_str3(statistics[statistics_i]);
@@ -97,19 +97,19 @@ void print_statistics(unsigned int **screen, unsigned int *statistics) {
     }
 }
 
-void print_score(unsigned int **screen, unsigned int score) {
+void print_score(unsigned short **screen, unsigned int score) {
     char *score_str = int_to_str6(score);
     draw_string(screen, SCORE_NUMBER_POSITION_X, SCORE_NUMBER_POSITION_Y, score_str, WHITE_RGB565, BLACK_RGB565);
     free(score_str);
 }
 
-void print_best_score(unsigned int **screen, unsigned int best_score) {
+void print_best_score(unsigned short **screen, unsigned int best_score) {
     char *best_score_str = int_to_str6(best_score);
     draw_string(screen, BEST_SCORE_NUMBER_POSITION_X, BEST_SCORE_NUMBER_POSITION_Y, best_score_str, WHITE_RGB565, BLACK_RGB565);
     free(best_score_str);
 }
 
-void print_destroyed_lines_number(unsigned int **screen, unsigned int lines_amount) {
+void print_destroyed_lines_number(unsigned short **screen, unsigned int lines_amount) {
     char *lines_amount_str = int_to_str3(lines_amount);
     draw_string(screen, LINES_NUMBER_POSITION_X, LINES_NUMBER_POSITION_Y, lines_amount_str, WHITE_RGB565, BLACK_RGB565);
     free(lines_amount_str);

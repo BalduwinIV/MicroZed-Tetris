@@ -1,10 +1,23 @@
 #include "graphics.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "tools/colors.h"
+#include "background.h"
 
 /* Undefine when working with hardware. */
-#define TESTING
+/* #define TESTING */
 
-void draw_gamefield(unsigned int **screen, char** field){
+void draw_background(unsigned short **screen) {
+    for (int y = 0; y < 320; y++) {
+        for (int x = 0; x < 480; x++) {
+            screen[y][x] = background[y][x];
+        }
+    }
+}
+
+void draw_gamefield(unsigned short **screen, unsigned char** field){
     for (int y = 0; y < 15; y++){
         for(int x = 0; x < 5; x++){
             draw_block(screen, GAMEFIELD_X + (x*40), GAMEFIELD_Y + (y*20), (field[y][x]>>4) & 0xf);
@@ -13,7 +26,7 @@ void draw_gamefield(unsigned int **screen, char** field){
     }
 }
 
-void draw_block(unsigned int **screen, int x, int y, unsigned char block_type) {
+void draw_block(unsigned short **screen, int x, int y, unsigned char block_type) {
     unsigned int main_color, top_color, sides_color, bottom_color;
 
     if (block_type == NO_BLOCK) {

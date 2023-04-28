@@ -1,5 +1,4 @@
 #include "font.h"
-#include <stdio.h>
 
 /* Characters array. */
 /* [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
@@ -25,7 +24,7 @@
 
 */
 
-static unsigned int characters[41][14] = {
+static unsigned short characters[41][14] = {
     /*
      * |  ******  |
      * | ******** |
@@ -1384,7 +1383,7 @@ static unsigned int characters[41][14] = {
     }
 };
 
-static void draw_whitespace(unsigned int **screen, int x, int y, unsigned int color) {
+static void draw_whitespace(unsigned short **screen, int x, int y, unsigned int color) {
     for (int yi = 0; yi < 14; yi++) {
         for (int xi = 0; xi < 10; xi++) {
             screen[y+yi][x+xi] = color;
@@ -1400,7 +1399,7 @@ static void draw_whitespace(unsigned int **screen, int x, int y, unsigned int co
  * @param fg_color  character foreground color
  * @param bg_color  character background color;
  * */
-static void draw_char(unsigned int **screen, int x, int y, char ch, unsigned int fg_color, unsigned int bg_color) {
+static void draw_char(unsigned short **screen, int x, int y, char ch, unsigned int fg_color, unsigned int bg_color) {
     if (ch == ' ') {
         draw_whitespace(screen, x, y, bg_color);
         return;
@@ -1424,7 +1423,6 @@ static void draw_char(unsigned int **screen, int x, int y, char ch, unsigned int
     } else {
         wanted_ch = 40;
     }
-    printf("wanted_ch = %d, ch = %d\n", wanted_ch, ch);
 
     for (int font_y = 0; font_y < 14; font_y++) {
         screen[y+font_y][x] = (characters[wanted_ch][font_y] & 0x8000) ? fg_color : bg_color;    /* 1st bit */
@@ -1440,7 +1438,7 @@ static void draw_char(unsigned int **screen, int x, int y, char ch, unsigned int
     }
 }
 
-void draw_string(unsigned int **screen, int x, int y, char *str, unsigned int fg_color, unsigned int bg_color) {
+void draw_string(unsigned short **screen, int x, int y, char *str, unsigned int fg_color, unsigned int bg_color) {
     int ch_x_pos = x;
     for (int ch_i = 0; str[ch_i] != '\0'; ch_i++) {
         draw_char(screen, ch_x_pos, y, str[ch_i], fg_color, bg_color);
