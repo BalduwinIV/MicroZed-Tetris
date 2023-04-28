@@ -20,8 +20,8 @@ void draw_background(unsigned short **screen) {
 void draw_gamefield(unsigned short **screen, unsigned char** field){
     for (int y = 0; y < 15; y++){
         for(int x = 0; x < 5; x++){
-            draw_block(screen, GAMEFIELD_X + (x*40), GAMEFIELD_Y + (y*20), (field[y][x]>>4) & 0xf);
-            draw_block(screen, GAMEFIELD_X + (x*40 + 20), GAMEFIELD_Y + (y*20), field[y][x] & 0xf);
+            draw_block(screen, GAMEFIELD_X + (x*40), GAMEFIELD_Y + (y*20), (field[y][x] & 0xf0) >> 4);
+            draw_block(screen, GAMEFIELD_X + (x*40 + 20), GAMEFIELD_Y + (y*20), field[y][x] & 0x0f);
         }
     }
 }
@@ -66,7 +66,7 @@ void draw_block(unsigned short **screen, int x, int y, unsigned char block_type)
         top_color = BLACK_RGB565;
         sides_color = BLACK_RGB565;
         bottom_color = BLACK_RGB565;
-    } else if (block_type == GREEN_BLOCK_TYPE) {
+    } else if (block_type == GREEN_BLOCK_TYPE || block_type == GREEN_FALLING_BLOCK_TYPE) {
 #ifndef TESTING
         /* To lcd display. */
         main_color = GREEN_RGB565;
@@ -80,7 +80,7 @@ void draw_block(unsigned short **screen, int x, int y, unsigned char block_type)
         sides_color = GREEN_BLOCK_SIDES888;
         bottom_color = GREEN_BLOCK_BOTTOM888;
 #endif
-    } else if (block_type == RED_BLOCK_TYPE) {
+    } else if (block_type == RED_BLOCK_TYPE || block_type == RED_FALLING_BLOCK_TYPE) {
 #ifndef TESTING
         /* To lcd display. */
         main_color = RED_RGB565;
@@ -94,7 +94,7 @@ void draw_block(unsigned short **screen, int x, int y, unsigned char block_type)
         sides_color = RED_BLOCK_SIDES888;
         bottom_color = RED_BLOCK_BOTTOM888;
 #endif
-    } else if (block_type == PURPLE_BLOCK_TYPE) {
+    } else if (block_type == PURPLE_BLOCK_TYPE || block_type == PURPLE_FALLING_BLOCK_TYPE) {
 #ifndef TESTING
         /* To lcd display. */
         main_color = PURPLE_RGB565;
@@ -108,7 +108,7 @@ void draw_block(unsigned short **screen, int x, int y, unsigned char block_type)
         sides_color = PURPLE_BLOCK_SIDES888;
         bottom_color = PURPLE_BLOCK_BOTTOM888;
 #endif
-    } else if (block_type == YELLOW_BLOCK_TYPE) {
+    } else if (block_type == YELLOW_BLOCK_TYPE || block_type == YELLOW_FALLING_BLOCK_TYPE) {
 #ifndef TESTING
         /* To lcd display. */
         main_color = YELLOW_RGB565;
@@ -122,7 +122,7 @@ void draw_block(unsigned short **screen, int x, int y, unsigned char block_type)
         sides_color = YELLOW_BLOCK_SIDES888;
         bottom_color = YELLOW_BLOCK_BOTTOM888;
 #endif
-    } else if (block_type == DARKBLUE_BLOCK_TYPE) {
+    } else if (block_type == DARKBLUE_BLOCK_TYPE || block_type == DARKBLUE_FALLING_BLOCK_TYPE) {
 #ifndef TESTING
         /* To lcd display. */
         main_color = DARKBLUE_RGB565;
@@ -136,7 +136,7 @@ void draw_block(unsigned short **screen, int x, int y, unsigned char block_type)
         sides_color = DARKBLUE_BLOCK_SIDES888;
         bottom_color = DARKBLUE_BLOCK_BOTTOM888;
 #endif
-    } else if (block_type == ORANGE_BLOCK_TYPE) {
+    } else if (block_type == ORANGE_BLOCK_TYPE || block_type == ORANGE_FALLING_BLOCK_TYPE) {
 #ifndef TESTING
         /* To lcd display. */
         main_color = ORANGE_RGB565;
@@ -150,7 +150,7 @@ void draw_block(unsigned short **screen, int x, int y, unsigned char block_type)
         sides_color = ORANGE_BLOCK_SIDES888;
         bottom_color = ORANGE_BLOCK_BOTTOM888;
 #endif
-    } else if (block_type == BLUE_BLOCK_TYPE) {
+    } else if (block_type == BLUE_BLOCK_TYPE || block_type == BLUE_FALLING_BLOCK_TYPE) {
 #ifndef TESTING
         /* To lcd display. */
         main_color = BLUE_RGB565;
@@ -164,6 +164,11 @@ void draw_block(unsigned short **screen, int x, int y, unsigned char block_type)
         sides_color = BLUE_BLOCK_SIDES888;
         bottom_color = BLUE_BLOCK_BOTTOM888;
 #endif
+    } else if (block_type == ANIMATION_BLOCK_TYPE) {
+        main_color = WHITE_RGB565;
+        top_color = WHITE_RGB565;
+        sides_color = WHITE_RGB565;
+        bottom_color = WHITE_RGB565;
     }
 
     for (int yi = 0; yi < BLOCK_SIZE; yi++) {

@@ -9,7 +9,7 @@ LDFLAGS += -static
 LDLIBS += -lrt -lpthread
 #LDLIBS += -lm
 
-SOURCES = tetris.c hardware/io_address.c hardware/mzapo_parlcd.c hardware/mzapo_phys.c hardware/serialize_lock.c game/game.c game/graphics.c game/menu.c game/stats.c game/tools/colors.c game/tools/font.c game/pause.c
+SOURCES = tetris.c hardware/io_address.c hardware/mzapo_parlcd.c hardware/mzapo_phys.c hardware/serialize_lock.c game/game.c game/graphics.c game/menu.c game/stats.c game/tools/colors.c game/tools/font.c game/pause.c game/gamefield.c
 #SOURCES += font_prop14x16.c font_rom8x16.c
 TARGET_EXE = tetris
 TARGET_IP ?= 192.168.223.217

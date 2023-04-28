@@ -12,6 +12,7 @@
 #include "graphics.h"
 #include "stats.h"
 #include "pause.h"
+#include "gamefield.h"
 
 #define BEST_SCORE_FILENAME     "bestscore.data"
 
@@ -31,15 +32,19 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
         fprintf(stderr, "Malloc failed for gamefield.\n");
         exit(1);
     }
-    unsigned char block_type = GREEN_BLOCK_TYPE;
+    unsigned char block_type = GREEN_FALLING_BLOCK_TYPE;
     for (int y = 0; y < 15; y++) {
         gamefield[y] = (unsigned char *)malloc(5 * sizeof(unsigned char));
         for (int x = 0; x < 5; x++) {
-            gamefield[y][x] = block_type << 4;
-            block_type = (block_type + 1) % 8;
-            gamefield[y][x] |= block_type;
-            block_type = (block_type + 1) % 8;
+            if (y == x) {
+                gamefield[y][x] = block_type << 4;
+                gamefield[y][x] |= block_type;
+            } else {
+                gamefield[y][x] = 0x00;
+            }
+            printf("%x", gamefield[y][x]);
         }
+        printf("\n");
         if (!gamefield[y]) {
             fprintf(stderr, "Malloc failed for gamefield.\n");
             exit(1);
@@ -49,8 +54,10 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
     unsigned char pause_option;
     uint8_t first_press = 1;
 
+    struct timespec update_call_time = {.tv_sec = 0, .tv_nsec = 0};
+    clock_gettime(CLOCK_MONOTONIC, &update_call_time);
+
     draw_background(screen);
-    draw_gamefield(screen, gamefield);
     unsigned char game_is_running = 1;
     while (game_is_running) {
         if (is_green_knob_pressed(io) && !first_press) {
@@ -71,11 +78,18 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
         print_score(screen, score);
         print_best_score(screen, best_score);
         print_destroyed_lines_number(screen, lines_number);
+        update_gamefield(gamefield, &update_call_time, blocks_speed);
+        clear_rows(gamefield, screen, io, blocks_speed);
+        draw_gamefield(screen, gamefield);
 
         lcd_display(io, screen);
         clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
     }
 
+    for (int row = 0; row < 15; row++) {
+        free(gamefield[row]);
+    }
+    free(gamefield);
     set_best_score(best_score);
 }
 
@@ -85,7 +99,9 @@ static unsigned int get_best_score() {
         return 0;
     }
 
-    return (getc(bestscore_f)) | (getc(bestscore_f) << 8) | (getc(bestscore_f) << 16) | (getc(bestscore_f) << 24);
+    unsigned int return_value = (getc(bestscore_f)) | (getc(bestscore_f) << 8) | (getc(bestscore_f) << 16) | (getc(bestscore_f) << 24);
+    fclose(bestscore_f);
+    return return_value;
 }
 
 void set_best_score(unsigned int value) {
@@ -98,4 +114,5 @@ void set_best_score(unsigned int value) {
         fputc((value & 0x00ff0000) >> 16, bestscore_f);
         fputc((value & 0xff000000) >> 24, bestscore_f);
     }
+    fclose(bestscore_f);
 }
