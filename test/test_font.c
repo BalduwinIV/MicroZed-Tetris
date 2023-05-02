@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "game/image_graphics.h"
-#include "game/tools/colors.h"
-#include "game/tools/font.h"
+#include "../game/image_graphics.h"
+#include "../game/tools/colors.h"
+#include "../game/tools/font.h"
 
 int main() {
     unsigned short **screen = (unsigned short **)malloc(320 * sizeof(unsigned short *));

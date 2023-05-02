@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "game/image_graphics.h"
-#include "game/tools/colors.h"
-#include "game/tools/font.h"
-#include "game/graphics.h"
+#include "../game/image_graphics.h"
+#include "../game/tools/colors.h"
+#include "../game/tools/font.h"
+#include "../game/graphics.h"
 
 void draw_rect(unsigned short **screen, int x, int y, int dest_x, int dest_y, int color) {
     for (int y_temp = y; y_temp <= dest_y; y_temp++) {
