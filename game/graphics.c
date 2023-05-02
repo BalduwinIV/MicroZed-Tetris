@@ -5,6 +5,7 @@
 
 #include "tools/colors.h"
 #include "background.h"
+#include "gamefield.h"
 
 /* Undefine when working with hardware. */
 /* #define TESTING */
@@ -18,10 +19,9 @@ void draw_background(unsigned short **screen) {
 }
 
 void draw_gamefield(unsigned short **screen, unsigned char** field){
-    for (int y = 0; y < 15; y++){
-        for(int x = 0; x < 5; x++){
-            draw_block(screen, GAMEFIELD_X + (x*40), GAMEFIELD_Y + (y*20), (field[y][x] & 0xf0) >> 4);
-            draw_block(screen, GAMEFIELD_X + (x*40 + 20), GAMEFIELD_Y + (y*20), field[y][x] & 0x0f);
+    for (int y = 3; y < GAMEFIELD_SIZE; y++){
+        for(int x = 0; x < 10; x++){
+            draw_block(screen, GAMEFIELD_X + (x*20), GAMEFIELD_Y + ((y-3)*20), field[y][x]);
         }
     }
 }

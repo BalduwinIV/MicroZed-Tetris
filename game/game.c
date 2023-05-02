@@ -13,6 +13,7 @@
 #include "stats.h"
 #include "pause.h"
 #include "gamefield.h"
+#include "block.h"
 
 #define BEST_SCORE_FILENAME     "bestscore.data"
 
@@ -27,24 +28,16 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
     unsigned int best_score = get_best_score();
     unsigned int lines_number = 0;
 
-    unsigned char **gamefield = (unsigned char **)malloc(15 * sizeof(unsigned char *));
+    unsigned char **gamefield = (unsigned char **)malloc(GAMEFIELD_SIZE * sizeof(unsigned char *));
     if (!gamefield) {
         fprintf(stderr, "Malloc failed for gamefield.\n");
         exit(1);
     }
-    unsigned char block_type = GREEN_FALLING_BLOCK_TYPE;
-    for (int y = 0; y < 15; y++) {
+    for (int y = 0; y < GAMEFIELD_SIZE; y++) {
         gamefield[y] = (unsigned char *)malloc(5 * sizeof(unsigned char));
-        for (int x = 0; x < 5; x++) {
-            if (y == x) {
-                gamefield[y][x] = block_type << 4;
-                gamefield[y][x] |= block_type;
-            } else {
-                gamefield[y][x] = 0x00;
-            }
-            printf("%x", gamefield[y][x]);
+        for (int x = 0; x < 10; x++) {
+            gamefield[y][x] = NO_BLOCK;
         }
-        printf("\n");
         if (!gamefield[y]) {
             fprintf(stderr, "Malloc failed for gamefield.\n");
             exit(1);
@@ -53,6 +46,10 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
 
     unsigned char pause_option;
     uint8_t first_press = 1;
+    uint8_t blue_knob_first_press = 1;
+    uint8_t red_knob_first_press = 1;
+
+    block_t *current_block = spawn_block(gamefield, DARKBLUE_FALLING_BLOCK_TYPE);
 
     struct timespec update_call_time = {.tv_sec = 0, .tv_nsec = 0};
     clock_gettime(CLOCK_MONOTONIC, &update_call_time);
@@ -78,7 +75,23 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
         print_score(screen, score);
         print_best_score(screen, best_score);
         print_destroyed_lines_number(screen, lines_number);
-        update_gamefield(gamefield, &update_call_time, blocks_speed);
+
+        if (is_blue_knob_pressed(io) && blue_knob_first_press) {
+            rotate_block_right(gamefield, current_block);
+            blue_knob_first_press = 0;
+        } else if (!is_blue_knob_pressed(io) && !blue_knob_first_press){
+            blue_knob_first_press = 1;
+        }
+        if (is_red_knob_pressed(io) && red_knob_first_press) {
+            rotate_block_left(gamefield, current_block);
+            red_knob_first_press = 0;
+        } else if (!is_red_knob_pressed(io) && !red_knob_first_press) {
+            red_knob_first_press = 1;
+        }
+
+        if (update_gamefield(gamefield, current_block, &update_call_time, blocks_speed)) {
+            current_block = spawn_block(gamefield, BLUE_FALLING_BLOCK_TYPE);
+        }
         clear_rows(gamefield, screen, io, blocks_speed);
         draw_gamefield(screen, gamefield);
 
@@ -86,10 +99,11 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
         clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
     }
 
-    for (int row = 0; row < 15; row++) {
+    for (int row = 0; row < GAMEFIELD_SIZE; row++) {
         free(gamefield[row]);
     }
     free(gamefield);
+    free(current_block);
     set_best_score(best_score);
 }
 
