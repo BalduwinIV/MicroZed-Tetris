@@ -65,7 +65,7 @@ block_t * spawn_block(unsigned char **gamefield, unsigned char block_type) {
     return block;
 }
 
-unsigned char move_block_right(unsigned char **gamefield, block_t *block) {
+void move_block_right(unsigned char **gamefield, block_t *block) {
     if (block->type == BLUE_FALLING_BLOCK_TYPE) {
         if (block->state == 0) {
             if (is_free(gamefield, block->x+4, block->y+1)) {
@@ -98,12 +98,614 @@ unsigned char move_block_right(unsigned char **gamefield, block_t *block) {
                 draw_figure(gamefield, block);
             }
         }
+    } else if (block->type == DARKBLUE_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x+1, block->y) &&
+                    is_free(gamefield, block->x+3, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+3, block->y) &&
+                    is_free(gamefield, block->x+2, block->y+1) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x+3, block->y+1) &&
+                    is_free(gamefield, block->x+3, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x+2, block->y) &&
+                    is_free(gamefield, block->x+2, block->y+1) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        }
+    } else if (block->type == ORANGE_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x+3, block->y) &&
+                    is_free(gamefield, block->x+3, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+2, block->y) &&
+                    is_free(gamefield, block->x+2, block->y+1) &&
+                    is_free(gamefield, block->x+3, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x+3, block->y+1) &&
+                    is_free(gamefield, block->x+1, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x+2, block->y) &&
+                    is_free(gamefield, block->x+2, block->y+1) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        }
+    } else if (block->type == YELLOW_FALLING_BLOCK_TYPE) {
+        if (is_free(gamefield, block->x+2, block->y) &&
+                is_free(gamefield, block->x+2, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+        }
+    } else if (block->type == GREEN_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x+3, block->y) && 
+                    is_free(gamefield, block->x+2, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+2, block->y) &&
+                    is_free(gamefield, block->x+3, block->y+1) &&
+                    is_free(gamefield, block->x+3, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x+3, block->y+1) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x+1, block->y) &&
+                    is_free(gamefield, block->x+2, block->y+1) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        }
+    } else if (block->type == PURPLE_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x+2, block->y) &&
+                    is_free(gamefield, block->x+3, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+2, block->y) &&
+                    is_free(gamefield, block->x+3, block->y+1) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x+3, block->y+1) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x+2, block->y) &&
+                    is_free(gamefield, block->x+2, block->y+1) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        }
+    } else if (block->type == RED_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x+2, block->y) &&
+                    is_free(gamefield, block->x+3, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+3, block->y) &&
+                    is_free(gamefield, block->x+3, block->y+1) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x+2, block->y+1) &&
+                    is_free(gamefield, block->x+3, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x+2, block->y) &&
+                    is_free(gamefield, block->x+2, block->y+1) &&
+                    is_free(gamefield, block->x+1, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x++;
+                draw_figure(gamefield, block);
+            }
+        }
     }
 }
 
-unsigned char move_block_left(unsigned char **gamefield, block_t *block);
-unsigned char move_block_down(unsigned char **gamefield, block_t *block);
-void drop_block(unsigned char **gamefield, block_t *block);
+void move_block_left(unsigned char **gamefield, block_t *block) {
+    if (block->type == BLUE_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x-1, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+1, block->y) &&
+                    is_free(gamefield, block->x+1, block->y+1) &&
+                    is_free(gamefield, block->x+1, block->y+2) &&
+                    is_free(gamefield, block->x+1, block->y+3)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x-1, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x, block->y) &&
+                    is_free(gamefield, block->x, block->y+1) &&
+                    is_free(gamefield, block->x, block->y+2) &&
+                    is_free(gamefield, block->x, block->y+3)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        }
+    } else if (block->type == DARKBLUE_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x-1, block->y) &&
+                    is_free(gamefield, block->x-1, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x, block->y) &&
+                    is_free(gamefield, block->x, block->y+1) &&
+                    is_free(gamefield, block->x, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x-1, block->y+1) &&
+                    is_free(gamefield, block->x+1, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x, block->y) &&
+                    is_free(gamefield, block->x, block->y+1) &&
+                    is_free(gamefield, block->x-1, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        }
+    } else if (block->type == ORANGE_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x+1, block->y) &&
+                    is_free(gamefield, block->x-1, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x, block->y) &&
+                    is_free(gamefield, block->x, block->y+1) &&
+                    is_free(gamefield, block->x, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x-1, block->y+1) &&
+                    is_free(gamefield, block->x-1, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x-1, block->y) &&
+                    is_free(gamefield, block->x, block->y+1) &&
+                    is_free(gamefield, block->x, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        }
+    } else if (block->type == YELLOW_FALLING_BLOCK_TYPE) {
+        if (is_free(gamefield, block->x-1, block->y) &&
+                is_free(gamefield, block->x-1, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+        }
+    } else if (block->type == GREEN_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x, block->y) && 
+                    is_free(gamefield, block->x-1, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x, block->y) &&
+                    is_free(gamefield, block->x, block->y+1) &&
+                    is_free(gamefield, block->x+1, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x, block->y+1) &&
+                    is_free(gamefield, block->x-1, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x-1, block->y) &&
+                    is_free(gamefield, block->x-1, block->y+1) &&
+                    is_free(gamefield, block->x, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        }
+    } else if (block->type == PURPLE_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x, block->y) &&
+                    is_free(gamefield, block->x-1, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x, block->y) &&
+                    is_free(gamefield, block->x, block->y+1) &&
+                    is_free(gamefield, block->x, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x-1, block->y+1) &&
+                    is_free(gamefield, block->x, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x, block->y) &&
+                    is_free(gamefield, block->x-1, block->y+1) &&
+                    is_free(gamefield, block->x, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        }
+    } else if (block->type == RED_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x-1, block->y) &&
+                    is_free(gamefield, block->x, block->y+1)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+1, block->y) &&
+                    is_free(gamefield, block->x, block->y+1) &&
+                    is_free(gamefield, block->x, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x-1, block->y+1) &&
+                    is_free(gamefield, block->x, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x, block->y) &&
+                    is_free(gamefield, block->x-1, block->y+1) &&
+                    is_free(gamefield, block->x-1, block->y+2)) {
+                erase_block(gamefield, block);
+                block->x--;
+                draw_figure(gamefield, block);
+            }
+        }
+    }
+}
+
+unsigned char move_block_down(unsigned char **gamefield, block_t *block) {
+    if (block->type == BLUE_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x, block->y+2) &&
+                    is_free(gamefield, block->x+1, block->y+2) &&
+                    is_free(gamefield, block->x+2, block->y+2) &&
+                    is_free(gamefield, block->x+3, block->y+2)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+2, block->y+4)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x, block->y+3) &&
+                    is_free(gamefield, block->x+1, block->y+3) &&
+                    is_free(gamefield, block->x+2, block->y+3) &&
+                    is_free(gamefield, block->x+3, block->y+3)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x+1, block->y+4)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        }
+    } else if (block->type == DARKBLUE_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x, block->y+2) &&
+                    is_free(gamefield, block->x+1, block->y+2) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+1, block->y+3) &&
+                    is_free(gamefield, block->x+2, block->y+1)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x, block->y+2) &&
+                    is_free(gamefield, block->x+1, block->y+2) &&
+                    is_free(gamefield, block->x+2, block->y+3)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x, block->y+3) &&
+                    is_free(gamefield, block->x+1, block->y+3)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        }
+    } else if (block->type == ORANGE_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x, block->y+2) &&
+                    is_free(gamefield, block->x+1, block->y+2) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+1, block->y+3) &&
+                    is_free(gamefield, block->x+2, block->y+3)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x, block->y+3) &&
+                    is_free(gamefield, block->x+1, block->y+2) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x, block->y+1) &&
+                    is_free(gamefield, block->x+1, block->y+3)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        }
+    } else if (block->type == YELLOW_FALLING_BLOCK_TYPE) {
+        if (is_free(gamefield, block->x, block->y+2) &&
+            is_free(gamefield, block->x+1, block->y+2)) {
+            erase_block(gamefield, block);
+            block->y++;
+            draw_figure(gamefield, block);
+            return 1;
+        }
+    } else if (block->type == GREEN_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x, block->y+2) && 
+                    is_free(gamefield, block->x+1, block->y+2) &&
+                    is_free(gamefield, block->x+2, block->y+1)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+1, block->y+2) &&
+                    is_free(gamefield, block->x+2, block->y+3)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x, block->y+3) &&
+                    is_free(gamefield, block->x+1, block->y+3) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x, block->y+2) &&
+                    is_free(gamefield, block->x+1, block->y+3)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        }
+    } else if (block->type == PURPLE_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x, block->y+2) &&
+                    is_free(gamefield, block->x+1, block->y+2) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+1, block->y+3) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x, block->y+2) &&
+                    is_free(gamefield, block->x+1, block->y+3) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x, block->y+2) &&
+                    is_free(gamefield, block->x+1, block->y+3)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        }
+    } else if (block->type == RED_FALLING_BLOCK_TYPE) {
+        if (block->state == 0) {
+            if (is_free(gamefield, block->x, block->y+1) &&
+                    is_free(gamefield, block->x+1, block->y+2) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 1) {
+            if (is_free(gamefield, block->x+1, block->y+3) &&
+                    is_free(gamefield, block->x+2, block->y+2)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 2) {
+            if (is_free(gamefield, block->x, block->y+2) &&
+                    is_free(gamefield, block->x+1, block->y+3) &&
+                    is_free(gamefield, block->x+2, block->y+3)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        } else if (block->state == 3) {
+            if (is_free(gamefield, block->x, block->y+3) &&
+                    is_free(gamefield, block->x+1, block->y+2)) {
+                erase_block(gamefield, block);
+                block->y++;
+                draw_figure(gamefield, block);
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+void drop_block(unsigned char **gamefield, block_t *block) {
+    while(move_block_down(gamefield, block));
+}
+
 void rotate_block_right(unsigned char **gamefield, block_t *block) {
     unsigned char is_rotatable = 1;
     for (int pixel_i = 0; pixel_i < 16; pixel_i++) {
