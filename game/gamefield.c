@@ -31,7 +31,6 @@ unsigned char update_gamefield(unsigned char **gamefield, block_t *current_block
                         } else {
                             spawn_new_block = 1;
                             gamefield[row][col] = gamefield[row][col] - 7;
-                            printf("Change block type to %x...\n", gamefield[row][col]);
                         }
                     }
                 } else {
@@ -44,7 +43,6 @@ unsigned char update_gamefield(unsigned char **gamefield, block_t *current_block
                             (gamefield[row][col] == BLUE_FALLING_BLOCK_TYPE)) {
                         spawn_new_block = 1;
                         gamefield[row][col] = gamefield[row][col] - 7;
-                        printf("Change block type to %x...\n", gamefield[row][col]);
                     }
                 }
             }
