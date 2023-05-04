@@ -15,8 +15,10 @@
 #include "pause.h"
 #include "gamefield.h"
 #include "block.h"
+#include "score.h"
 
 #define BEST_SCORE_FILENAME     "bestscore.data"
+#define KNOB_DEAD_ZONE_VALUE    4
 
 static struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 14 * 1000 * 1000};
 static unsigned short **screen_ptr;
@@ -64,8 +66,11 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
         }
     }
 
-    uint8_t blue_knob_first_press = 1;
     uint8_t red_knob_first_press = 1;
+    uint8_t red_knob_current_state_value = get_red_knob_value(io);
+    uint8_t red_knob_previous_state_value = red_knob_current_state_value;
+    uint8_t blue_knob_current_state_value = get_blue_knob_value(io);
+    uint8_t blue_knob_previous_state_value = blue_knob_current_state_value;
     unsigned int cleared_rows_at_the_moment;
 
     block_t *current_block = spawn_random_block(gamefield);
@@ -89,9 +94,57 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
 
     game_is_running = 1;
     while (game_is_running) {
+        /* Moving */
+        blue_knob_current_state_value = get_blue_knob_value(io);
+        if (blue_knob_current_state_value - blue_knob_previous_state_value > KNOB_DEAD_ZONE_VALUE) {
+            if (blue_knob_current_state_value - blue_knob_previous_state_value < 4 * KNOB_DEAD_ZONE_VALUE) {
+                printf("Moving current block to right...\n");
+                move_block_right(gamefield, current_block);
+            }
+            blue_knob_previous_state_value = blue_knob_current_state_value;
+        } else if (blue_knob_current_state_value - blue_knob_previous_state_value < -KNOB_DEAD_ZONE_VALUE) {
+            if (blue_knob_current_state_value - blue_knob_previous_state_value > -(4 * KNOB_DEAD_ZONE_VALUE)) {
+                printf("Moving current_block to left...\n");
+                move_block_left(gamefield, current_block);
+            }
+            blue_knob_previous_state_value = blue_knob_current_state_value;
+        }
+
+        /* Rotating */
+        red_knob_current_state_value = get_red_knob_value(io);
+        if (red_knob_current_state_value - red_knob_previous_state_value > KNOB_DEAD_ZONE_VALUE) {
+            if (red_knob_current_state_value - red_knob_previous_state_value < 4 * KNOB_DEAD_ZONE_VALUE) {
+                printf("Rotating current block clockwise...\n");
+                rotate_block_right(gamefield, current_block);
+            }
+            red_knob_previous_state_value = red_knob_current_state_value;
+        } else if (red_knob_current_state_value - red_knob_previous_state_value < -KNOB_DEAD_ZONE_VALUE) {
+            if (red_knob_current_state_value - red_knob_previous_state_value > -(4 * KNOB_DEAD_ZONE_VALUE)) {
+                printf("Rotating current block counterclockwise...\n");
+                rotate_block_left(gamefield, current_block);
+            }
+            red_knob_previous_state_value = red_knob_current_state_value;
+        }
+
+        /* Drop */
+        if (is_red_knob_pressed(io) && red_knob_first_press) {
+            red_knob_first_press = 0;
+            printf("Dropping current block...\n");
+            drop_block(gamefield, current_block);
+        } 
+        if (!red_knob_first_press && !is_red_knob_pressed(io)) {
+            red_knob_first_press = 1;
+        }
+
+        /* Soft drop */
+        if (is_blue_knob_pressed(io)) {
+            printf("Moving block down...\n");
+            move_block_down(gamefield, current_block);
+        }
+
         if (update_gamefield(gamefield, current_block, &update_call_time, blocks_speed)) {
+            statistics[current_block->type-7]++;
             print_statistics(screen, statistics);
-            print_score(screen, score);
 
             printf("Trying to free current block.\n");
             free(current_block);
@@ -108,6 +161,9 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
 
         cleared_rows_at_the_moment = clear_rows(gamefield, screen, io, blocks_speed);
         if (cleared_rows_at_the_moment > 0) {
+            score += calculate_score(blocks_speed, cleared_rows_at_the_moment);
+            print_score(screen, score);
+
             printf("%d rows has been cleared.\n", cleared_rows_at_the_moment);
             lines_number += cleared_rows_at_the_moment;
             print_destroyed_lines_number(screen, lines_number);
@@ -159,6 +215,7 @@ static void *pause_thread(void *io) {
     }
 
     printf("Exiting pause thread...\n");
+    return NULL;
 }
 
 static unsigned int get_best_score() {

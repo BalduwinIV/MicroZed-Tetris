@@ -67,13 +67,13 @@ block_t * spawn_block(unsigned char **gamefield, unsigned char block_type) {
 
 block_t * spawn_random_block(unsigned char **gamefield) {
     srand(time(NULL));
-    unsigned char block_index = rand() % 7 + 1;
+    unsigned char block_index = rand() % 7 + 8;
     return spawn_block(gamefield, block_index);
 }
 
 unsigned char get_next_block_index() {
     srand(time(NULL));
-    return rand() % 7 + 1;
+    return rand() % 7 + 8;
 }
 
 void move_block_right(unsigned char **gamefield, block_t *block) {
