@@ -114,4 +114,3 @@ void print_destroyed_lines_number(unsigned short **screen, unsigned int lines_am
     draw_string(screen, LINES_NUMBER_POSITION_X, LINES_NUMBER_POSITION_Y, lines_amount_str, WHITE_RGB565, BLACK_RGB565);
     free(lines_amount_str);
 }
-
