@@ -45,19 +45,27 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
     }
 
     unsigned char pause_option;
-    uint8_t first_press = 1;
+    uint8_t green_first_press = 1;
     uint8_t blue_knob_first_press = 1;
     uint8_t red_knob_first_press = 1;
 
-    block_t *current_block = spawn_block(gamefield, DARKBLUE_FALLING_BLOCK_TYPE);
+    block_t *current_block = spawn_random_block(gamefield);
+    unsigned char next_block_index = get_next_block();
+
+    unsigned int cleared_rows_at_the_moment;
+
+    draw_background(screen);
+    print_statistics(screen, statistics);
+    print_score(screen, score);
+    print_best_score(screen, best_score);
+    print_destroyed_lines_number(screen, lines_number);
 
     struct timespec update_call_time = {.tv_sec = 0, .tv_nsec = 0};
     clock_gettime(CLOCK_MONOTONIC, &update_call_time);
 
-    draw_background(screen);
     unsigned char game_is_running = 1;
     while (game_is_running) {
-        if (is_green_knob_pressed(io) && !first_press) {
+        if (is_green_knob_pressed(io) && !green_first_press) {
             printf("Pause...\n");
             pause_option = pause(screen, io);
             if (pause_option == GO_TO_MENU) {
@@ -66,33 +74,23 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
                 break;
             }
             printf("Continue...\n");
-            first_press = 1;
+            green_first_press = 1;
         }
-        if (first_press && !is_green_knob_pressed(io)) {
-            first_press = 0;
-        }
-        print_statistics(screen, statistics);
-        print_score(screen, score);
-        print_best_score(screen, best_score);
-        print_destroyed_lines_number(screen, lines_number);
-
-        if (is_blue_knob_pressed(io) && blue_knob_first_press) {
-            rotate_block_right(gamefield, current_block);
-            blue_knob_first_press = 0;
-        } else if (!is_blue_knob_pressed(io) && !blue_knob_first_press){
-            blue_knob_first_press = 1;
-        }
-        if (is_red_knob_pressed(io) && red_knob_first_press) {
-            rotate_block_left(gamefield, current_block);
-            red_knob_first_press = 0;
-        } else if (!is_red_knob_pressed(io) && !red_knob_first_press) {
-            red_knob_first_press = 1;
+        if (green_first_press && !is_green_knob_pressed(io)) {
+            green_first_press = 0;
         }
 
         if (update_gamefield(gamefield, current_block, &update_call_time, blocks_speed)) {
+            print_statistics(screen, statistics);
+            print_score(screen, score);
             current_block = spawn_block(gamefield, BLUE_FALLING_BLOCK_TYPE);
         }
-        clear_rows(gamefield, screen, io, blocks_speed);
+
+        cleared_rows_at_the_moment = clear_rows(gamefield, screen, io, blocks_speed);
+        if (cleared_rows_at_the_moment > 0) {
+            lines_number += cleared_rows_at_the_moment;
+            print_destroyed_lines_number(screen, lines_number);
+        }
         draw_gamefield(screen, gamefield);
 
         lcd_display(io, screen);

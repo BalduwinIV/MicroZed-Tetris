@@ -65,6 +65,17 @@ block_t * spawn_block(unsigned char **gamefield, unsigned char block_type) {
     return block;
 }
 
+block_t * spawn_random_block(unsigned char **gamefield) {
+    srand(time(NULL));
+    unsigned char block_index = rand() % 7 + 1;
+    return spawn_block(gamefield, block_index);
+}
+
+unsigned char get_next_block() {
+    srand(time(NULL));
+    return rand() % 7 + 1;
+}
+
 void move_block_right(unsigned char **gamefield, block_t *block) {
     if (block->type == BLUE_FALLING_BLOCK_TYPE) {
         if (block->state == 0) {

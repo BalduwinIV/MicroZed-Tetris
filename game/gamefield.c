@@ -56,8 +56,8 @@ unsigned char update_gamefield(unsigned char **gamefield, block_t *current_block
     return spawn_new_block;
 }
 
-int clear_rows(unsigned char **gamefield, unsigned short **screen, phys_addr_t *io, unsigned char blocks_speed) {
-    int cleared_rows = 0;
+unsigned char clear_rows(unsigned char **gamefield, unsigned short **screen, phys_addr_t *io, unsigned char blocks_speed) {
+    unsigned char cleared_rows = 0;
     unsigned char full_row;
     for (int row = GAMEFIELD_SIZE-1; row >= 0; row--) {
         full_row = 1;
