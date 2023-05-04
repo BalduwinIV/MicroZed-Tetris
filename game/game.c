@@ -20,6 +20,7 @@
 
 static struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 14 * 1000 * 1000};
 static unsigned short **screen_ptr;
+static unsigned char *show_next_element_ptr;
 static unsigned int **statistics_ptr;
 static unsigned int *score_ptr;
 static unsigned int *best_score_ptr;
@@ -39,6 +40,7 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
     unsigned int best_score = get_best_score();
     unsigned int lines_number = 0;
 
+    show_next_element_ptr = &show_next_element;
     screen_ptr = screen;
     statistics_ptr = statistics_ptr;
     score_ptr = &score;
@@ -67,7 +69,7 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
     unsigned int cleared_rows_at_the_moment;
 
     block_t *current_block = spawn_random_block(gamefield);
-    unsigned char next_block_index = get_next_block();
+    unsigned char next_block_index = get_next_block_index();
     next_block_index_ptr = &next_block_index;
     printf("Current block: %d, Next block: %d\n", current_block->type, next_block_index);
 
@@ -91,11 +93,17 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
             print_statistics(screen, statistics);
             print_score(screen, score);
 
-            printf("Spawing next block (%d)...\n", next_block_index);
+            printf("Trying to free current block.\n");
+            free(current_block);
+            printf("Current block has been freed.\n");
+            printf("Spawing block (%d)...\n", next_block_index);
             current_block = spawn_block(gamefield, next_block_index);
-            next_block_index = get_next_block();
-            print_next_block(screen, next_block_index);
+            next_block_index = get_next_block_index();
             printf("Next block: %d\n", next_block_index);
+
+            if (show_next_element) {
+                print_next_block(screen, next_block_index);
+            }
         }
 
         cleared_rows_at_the_moment = clear_rows(gamefield, screen, io, blocks_speed);
@@ -139,7 +147,9 @@ static void *pause_thread(void *io) {
             print_statistics(screen_ptr, *statistics_ptr);
             print_score(screen_ptr, *score_ptr);
             print_best_score(screen_ptr, *best_score_ptr);
-            print_next_block(screen_ptr, *next_block_index_ptr);
+            if (*show_next_element_ptr) {
+                print_next_block(screen_ptr, *next_block_index_ptr);
+            }
             print_destroyed_lines_number(screen_ptr, *lines_number_ptr);
         }
         if (green_first_press && !is_green_knob_pressed(io)) {

@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     printf("Starting...\n");
 
     int y;
-
+    printf("Allocating memory for the screen.\n");
     unsigned short **screen = (unsigned short **)malloc(SCREEN_HEIGHT * sizeof(unsigned short *));
     if (!screen) {
         fprintf(stderr, "Malloc failed for screen.\n");
@@ -73,6 +73,11 @@ int main(int argc, char *argv[])
             printf("Game ended...\n");
         }
     }
+
+    for (y = 0; y < SCREEN_HEIGHT; y++) {
+        free(screen[y]);
+    }
+    free(screen);
 
     printf("Stopping...\n");
 

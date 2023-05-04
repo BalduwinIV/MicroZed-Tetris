@@ -71,7 +71,7 @@ block_t * spawn_random_block(unsigned char **gamefield) {
     return spawn_block(gamefield, block_index);
 }
 
-unsigned char get_next_block() {
+unsigned char get_next_block_index() {
     srand(time(NULL));
     return rand() % 7 + 1;
 }

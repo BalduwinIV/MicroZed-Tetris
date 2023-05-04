@@ -55,7 +55,7 @@ typedef struct {
 
 block_t * spawn_block(unsigned char **gamefield, unsigned char block_type);
 block_t * spawn_random_block(unsigned char **gamefield);
-unsigned char get_next_block();
+unsigned char get_next_block_index();
 void move_block_right(unsigned char **gamefield, block_t *block);
 void move_block_left(unsigned char **gamefield, block_t *block);
 unsigned char move_block_down(unsigned char **gamefield, block_t *block);
