@@ -55,21 +55,23 @@ int main(int argc, char *argv[])
     phys_addr_t *io = init_io();
 
     unsigned char menu_option;
-    unsigned char blocks_speed;
-    unsigned char show_next_element;
+    unsigned char blocks_speed = 4;
+    unsigned char show_next_element = 1;
+    unsigned char enable_audio = 0;
     unsigned char program_is_running = 1;
     while (program_is_running) {
         printf("Starting menu...\n");
-        menu_option = menu(screen, io, &blocks_speed, &show_next_element);
+        menu_option = menu(screen, io, &blocks_speed, &show_next_element, &enable_audio);
         printf("Menu option: %d\n", menu_option);
         printf("Blocks speed: %d\n", blocks_speed);
         printf("Show next element? : %d\n", show_next_element);
+        printf("Enable audio? : %d\n", enable_audio);
         if (menu_option == EXIT) {
             program_is_running = 0;
             break;
         } else if (menu_option == NEW_GAME) {
             printf("Starting game...\n");
-            start_game(screen, io, blocks_speed, show_next_element);
+            start_game(screen, io, &blocks_speed, &show_next_element, &enable_audio);
             printf("Game ended...\n");
         }
     }
@@ -79,6 +81,9 @@ int main(int argc, char *argv[])
     }
     free(screen);
 
+    set_led_line_value(io, 0x00000000);
+    set_led_rgb1_color(io, 0x00000000);
+    set_led_rgb2_color(io, 0x00000000);
     printf("Stopping...\n");
 
     /* Release the lock */

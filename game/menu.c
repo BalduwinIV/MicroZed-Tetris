@@ -11,9 +11,9 @@
 
 #define DEFAULT_BLOCKS_SPEED        4
 #define DEFAULT_SHOW_NEXT_BLOCK     1
-#define MAX_BLOCKS_SPEED            24
+#define MAX_BLOCKS_SPEED            32
 
-#define OPTIONS_NUM                 4
+#define OPTIONS_NUM                 5
 #define KNOB_DEAD_ZONE_VALUE        5
 #define MAX_TEXT_WIDTH              272
 #define TEXT_HEIGHT                 14
@@ -28,7 +28,7 @@ static int get_menu_position_y() {
     return 220 - (OPTIONS_NUM * (TEXT_PADDING_Y * 2 + TEXT_HEIGHT) / 2);
 }
 
-unsigned char menu(unsigned short** screen, phys_addr_t *io, unsigned char *blocks_speed, unsigned char *show_next_block){
+unsigned char menu(unsigned short** screen, phys_addr_t *io, unsigned char *blocks_speed, unsigned char *show_next_block, unsigned char *enable_audio){
     int x = get_menu_position_x();
     int y = get_menu_position_y();
 
@@ -109,6 +109,19 @@ unsigned char menu(unsigned short** screen, phys_addr_t *io, unsigned char *bloc
     uint8_t green_knob_previous_state_value = green_knob_current_state_value;
     uint8_t blue_knob_current_state_value = get_blue_knob_value(io);
     uint8_t blue_knob_previous_state_value = blue_knob_current_state_value;
+
+    set_led_line_value(io, 0xffffffff << (32 - *blocks_speed));
+    if (*show_next_block) {
+        set_led_rgb1_color(io, GREEN_RGB888);
+    } else {
+        set_led_rgb1_color(io, RED_RGB888);
+    }
+    if (*enable_audio) {
+        set_led_rgb2_color(io, GREEN_RGB888);
+    } else {
+        set_led_rgb2_color(io, RED_RGB888);
+    }
+
     char blocks_speed_str[22] = "BLOCKS SPEED    ";
     struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 14 * 1000 * 1000};
     while (1) {
@@ -171,6 +184,7 @@ unsigned char menu(unsigned short** screen, phys_addr_t *io, unsigned char *bloc
                         *blocks_speed = 1;
                     }
                 }
+                set_led_line_value(io, 0xffffffff << (32 - *blocks_speed));
                 blue_knob_previous_state_value = blue_knob_current_state_value;
             } else if (blue_knob_current_state_value - blue_knob_previous_state_value < -KNOB_DEAD_ZONE_VALUE) {
                 if (blue_knob_current_state_value - blue_knob_previous_state_value > -(4 * KNOB_DEAD_ZONE_VALUE)) {
@@ -179,6 +193,7 @@ unsigned char menu(unsigned short** screen, phys_addr_t *io, unsigned char *bloc
                         *blocks_speed = MAX_BLOCKS_SPEED;
                     }
                 }
+                set_led_line_value(io, 0xffffffff << (32 - *blocks_speed));
                 blue_knob_previous_state_value = blue_knob_current_state_value;
             }
             draw_string(screen, x + TEXT_PADDING_X, y + 3 * TEXT_PADDING_Y + TEXT_HEIGHT, blocks_speed_str, BLACK_RGB565, WHITE_RGB565);
@@ -191,8 +206,10 @@ unsigned char menu(unsigned short** screen, phys_addr_t *io, unsigned char *bloc
                 green_knob_first_press = 0;
                 if (*show_next_block) {
                     *show_next_block = 0;
+                    set_led_rgb1_color(io, RED_RGB888);
                 } else {
                     *show_next_block = 1;
+                    set_led_rgb1_color(io, GREEN_RGB888);
                 }
             }
 
@@ -203,15 +220,35 @@ unsigned char menu(unsigned short** screen, phys_addr_t *io, unsigned char *bloc
         } else {
             draw_string(screen, x + TEXT_PADDING_X, y + 5 * TEXT_PADDING_Y + 2 * TEXT_HEIGHT, "SHOW NEXT BLOCK ", WHITE_RGB565, BLACK_RGB565);
         }
-
         draw_checkbox(screen, x + TEXT_PADDING_X + 245, y + 5 * TEXT_PADDING_Y + 2 * TEXT_HEIGHT + 2, *show_next_block);
+
+        if (vote == ENABLE_AUDIO) {
+            if (is_green_knob_pressed(io) && green_knob_first_press) {
+                green_knob_first_press = 0;
+                if (*enable_audio) {
+                    *enable_audio = 0;
+                    set_led_rgb2_color(io, RED_RGB888);
+                } else {
+                    *enable_audio = 1;
+                    set_led_rgb2_color(io, GREEN_RGB888);
+                }
+            }
+
+            if (!green_knob_first_press && !is_green_knob_pressed(io)) {
+                green_knob_first_press = 1;
+            }
+            draw_string(screen, x + TEXT_PADDING_X, y + 7 * TEXT_PADDING_Y + 3 * TEXT_HEIGHT, "ENABLE AUDIO ", BLACK_RGB565, WHITE_RGB565);
+        } else {
+            draw_string(screen, x + TEXT_PADDING_X, y + 7 * TEXT_PADDING_Y + 3 * TEXT_HEIGHT, "ENABLE AUDIO ", WHITE_RGB565, BLACK_RGB565);
+        }
+        draw_checkbox(screen, x + TEXT_PADDING_X + 245, y + 7 * TEXT_PADDING_Y + 3 * TEXT_HEIGHT + 2, *enable_audio);
         
         /* If "EXIT" option is chosen, then draw it black on white background. */
         /* White on black background otherwise. */
         if (vote == EXIT) {
-            draw_string(screen, x + TEXT_PADDING_X, y + 7 * TEXT_PADDING_Y + 3 * TEXT_HEIGHT, "EXIT", BLACK_RGB565, WHITE_RGB565);
+            draw_string(screen, x + TEXT_PADDING_X, y + 9 * TEXT_PADDING_Y + 4 * TEXT_HEIGHT, "EXIT", BLACK_RGB565, WHITE_RGB565);
         } else {
-            draw_string(screen, x + TEXT_PADDING_X, y + 7 * TEXT_PADDING_Y + 3 * TEXT_HEIGHT, "EXIT", WHITE_RGB565, BLACK_RGB565);
+            draw_string(screen, x + TEXT_PADDING_X, y + 9 * TEXT_PADDING_Y + 4 * TEXT_HEIGHT, "EXIT", WHITE_RGB565, BLACK_RGB565);
         }
 
         lcd_display(io, screen);

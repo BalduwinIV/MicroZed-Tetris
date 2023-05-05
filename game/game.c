@@ -22,19 +22,19 @@
 #define MAX_BLOCKS_SPEED        24
 #define KNOB_DEAD_ZONE_VALUE    3
 
-static unsigned int audio_volume = 50;
-static unsigned char audio_enabled;
+unsigned char audio_volume = 30;
+unsigned char audio_enabled;
 
 static unsigned int get_best_score();
 static void set_best_score(unsigned int value);
 static void *audio_thread(void *io);
 
-void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_speed, unsigned char show_next_element) {
+void start_game(unsigned short **screen, phys_addr_t *io, unsigned char *blocks_speed, unsigned char *show_next_element, unsigned char *enable_audio) {
     pthread_t audio_tid;
 
     unsigned int statistics[7] = {0, 0, 0, 0, 0, 0, 0};
     unsigned int score = 0;
-    unsigned int next_level_score_trigger = blocks_speed * 1000;
+    unsigned int next_level_score_trigger = *blocks_speed * 1000;
     unsigned int best_score = get_best_score();
     unsigned int lines_number = 0;
 
@@ -84,8 +84,10 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
     }
     print_destroyed_lines_number(screen, lines_number);
 
-    audio_enabled = 1;
-    pthread_create(&audio_tid, NULL, audio_thread, (void *)io);
+    audio_enabled = *enable_audio;
+    if (audio_enabled) {
+        pthread_create(&audio_tid, NULL, audio_thread, (void *)io);
+    }
 
     printf("Starting game loop...");
     struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 14 * 1000 * 1000};
@@ -97,14 +99,30 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
         /* Pause */
         if (is_green_knob_pressed(io) && !green_knob_first_press) {
             printf("Pause...\n");
-            pause_option = pause(screen, io);
+            pause_option = pause(screen, io, enable_audio, &audio_volume);
             if (pause_option == GO_TO_MENU) {
                 printf("Go to menu...\n");
                 game_is_running = 0;
                 audio_enabled = 0;
                 break;
             }
+            if (!audio_enabled && *enable_audio) {
+                pthread_create(&audio_tid, NULL, audio_thread, (void *)io);
+            }
+            audio_enabled = *enable_audio;
+            set_audio_volume(io, audio_volume);
+            printf("Enable audio ? %d\n", *enable_audio);
             printf("Continue...\n");
+            draw_background(screen);
+            print_statistics(screen, statistics);
+            print_score(screen, score);
+            print_best_score(screen, best_score);
+            if (show_next_element) {
+                print_next_block(screen, next_block_index);
+                set_led_rgb1_color(io, blocks_led_colors[current_block->type-8]);
+                set_led_rgb2_color(io, blocks_led_colors[next_block_index-8]);
+            }
+            print_destroyed_lines_number(screen, lines_number);
             green_knob_first_press = 1;
         }
         if (green_knob_first_press && !is_green_knob_pressed(io)) {
@@ -143,15 +161,15 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
         if (is_red_knob_pressed(io) && red_knob_first_press) {
             red_knob_first_press = 0;
             drop_block(gamefield, current_block, &last_row);
-            cleared_rows_at_the_moment = clear_rows(gamefield, screen, io, blocks_speed);
+            cleared_rows_at_the_moment = clear_rows(gamefield, screen, io, *blocks_speed);
             if (cleared_rows_at_the_moment > 0) {
-                score += calculate_score(blocks_speed, cleared_rows_at_the_moment);
-                if (blocks_speed < MAX_BLOCKS_SPEED) {
+                score += calculate_score(*blocks_speed, cleared_rows_at_the_moment);
+                if (*blocks_speed < MAX_BLOCKS_SPEED) {
                     while (score > next_level_score_trigger) {
-                        blocks_speed++;
+                        (*blocks_speed)++;
                         next_level_score_trigger *= 2;
 
-                        printf("Blocks speed became %d, next level score trigger = %d\n", blocks_speed, next_level_score_trigger);
+                        printf("Blocks speed became %d, next level score trigger = %d\n", *blocks_speed, next_level_score_trigger);
                     }
 
                 }
@@ -164,13 +182,9 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
             statistics[current_block->type-8]++;
             print_statistics(screen, statistics);
 
-            printf("Trying to free current block.\n");
             free(current_block);
-            printf("Current block has been freed.\n");
-            printf("Spawing block (%d)...\n", next_block_index);
             current_block = spawn_block(gamefield, next_block_index);
             next_block_index = get_next_block_index(statistics, current_block);
-            printf("Next block: %d\n", next_block_index);
 
             if (show_next_element) {
                 print_next_block(screen, next_block_index);
@@ -194,16 +208,16 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
             move_block_down(gamefield, current_block, &last_row);
         }
 
-        if (update_gamefield(gamefield, current_block, &update_call_time, blocks_speed, &last_row)) {
-            cleared_rows_at_the_moment = clear_rows(gamefield, screen, io, blocks_speed);
+        if (update_gamefield(gamefield, current_block, &update_call_time, *blocks_speed, &last_row)) {
+            cleared_rows_at_the_moment = clear_rows(gamefield, screen, io, *blocks_speed);
             if (cleared_rows_at_the_moment > 0) {
-                score += calculate_score(blocks_speed, cleared_rows_at_the_moment);
-                if (blocks_speed < MAX_BLOCKS_SPEED) {
+                score += calculate_score(*blocks_speed, cleared_rows_at_the_moment);
+                if (*blocks_speed < MAX_BLOCKS_SPEED) {
                     while (score > next_level_score_trigger) {
                         blocks_speed++;
                         next_level_score_trigger *= 2;
 
-                        printf("Blocks speed became %d, next level score trigger = %d\n", blocks_speed, next_level_score_trigger);
+                        printf("Blocks speed became %d, next level score trigger = %d\n", *blocks_speed, next_level_score_trigger);
                     }
 
                 }
@@ -216,13 +230,9 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
             statistics[current_block->type-8]++;
             print_statistics(screen, statistics);
 
-            printf("Trying to free current block.\n");
             free(current_block);
-            printf("Current block has been freed.\n");
-            printf("Spawing block (%d)...\n", next_block_index);
             current_block = spawn_block(gamefield, next_block_index);
             next_block_index = get_next_block_index(statistics, current_block);
-            printf("Next block: %d\n", next_block_index);
 
             if (show_next_element) {
                 print_next_block(screen, next_block_index);

@@ -106,14 +106,20 @@ unsigned char gameover(unsigned short** screen, unsigned char **gamefield, phys_
 }
 
 static void play_animation(unsigned short **screen, unsigned char **gamefield, phys_addr_t *io) {
-    struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 14 * 1000 * 1000};
+    struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 30 * 1000 * 1000};
 
     for (int y = 3; y < GAMEFIELD_SIZE; y++) {
         for (int x = 0; x < 10; x++) {
             gamefield[y][x] = ANIMATION_BLOCK_TYPE;
         }
+        if (y % 2) {
+            set_led_line_value(io, 0xaaaaaaaa);
+        } else {
+            set_led_line_value(io, 0x55555555);
+        }
         draw_gamefield(screen, gamefield);
         lcd_display(io, screen);
         clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
     }
+    set_led_line_value(io, 0x00000000);
 }
