@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <pthread.h>
 
 #include "../hardware/io_address.h"
 #include "../hardware/mzapo_parlcd.h"
@@ -21,10 +22,16 @@
 #define MAX_BLOCKS_SPEED        24
 #define KNOB_DEAD_ZONE_VALUE    3
 
+static unsigned int audio_volume = 50;
+static unsigned char audio_enabled;
+
 static unsigned int get_best_score();
 static void set_best_score(unsigned int value);
+static void *audio_thread(void *io);
 
 void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_speed, unsigned char show_next_element) {
+    pthread_t audio_tid;
+
     unsigned int statistics[7] = {0, 0, 0, 0, 0, 0, 0};
     unsigned int score = 0;
     unsigned int next_level_score_trigger = blocks_speed * 1000;
@@ -77,6 +84,9 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
     }
     print_destroyed_lines_number(screen, lines_number);
 
+    audio_enabled = 1;
+    pthread_create(&audio_tid, NULL, audio_thread, (void *)io);
+
     printf("Starting game loop...");
     struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 14 * 1000 * 1000};
     struct timespec update_call_time = {.tv_sec = 0, .tv_nsec = 0};
@@ -91,6 +101,7 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
             if (pause_option == GO_TO_MENU) {
                 printf("Go to menu...\n");
                 game_is_running = 0;
+                audio_enabled = 0;
                 break;
             }
             printf("Continue...\n");
@@ -169,6 +180,8 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
 
             if (check_gameover(gamefield)) {
                 printf("Gameover...\n");
+                gameover(screen, gamefield, io);
+                audio_enabled = 0;
                 break;
             }
         } 
@@ -220,6 +233,7 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char blocks_s
             if (check_gameover(gamefield)) {
                 printf("Gameover...\n");
                 gameover(screen, gamefield, io);
+                audio_enabled = 0;
                 break;
             }
         }
@@ -270,4 +284,71 @@ static void set_best_score(unsigned int value) {
         fputc((value & 0xff000000) >> 24, bestscore_f);
     }
     fclose(bestscore_f);
+}
+
+#define E6      659.25511
+#define B5      493.8833
+#define C6      523.25113
+#define D6      587.32954
+#define A5      440.0
+#define F6      698.45646
+#define A6      880.0
+#define G6      783.99087
+
+double frequency[] = {
+    E6, B5, C6, D6, C6, B5, A5, A5,
+    C6, E6, D6, C6, B5, C6, D6, E6, 
+    C6, A5, 
+    A5, A5, B5, C6, D6, F6, A6, G6, 
+    F6, E6, C6, E6, D6, C6, B5, B5, 
+    C6, D6,
+    E6, C6, A5, A5,
+
+    A5, A5, B5, C6, D6, F6, A6, G6, 
+    F6, E6, C6, E6, D6, C6, B5, B5, 
+    C6, D6,
+    E6, C6, A5, A5
+};
+unsigned int duration[] = {
+    406250, 203125, 203125, 406250, 203125, 203125, 406250, 203125, 
+    203125, 406250, 203125, 203125, 609375, 203125, 406250, 406250, 
+    406250, 406250, 
+    203125, 203125, 203125, 203125, 609375, 203125, 406250, 203125, 
+    203125, 609375, 203125, 406250, 203125, 203125, 203125, 203125, 
+    203125, 406250, 
+    406250, 406250, 406250, 406250,
+
+    203125, 203125, 203125, 203125, 609375, 203125, 406250, 203125, 
+    203125, 609375, 203125, 406250, 203125, 203125, 203125, 203125, 
+    203125, 406250, 
+    406250, 406250, 406250, 406250
+};
+
+unsigned int get_period(double frequency) {
+    return (unsigned int)(100000000/frequency);
+}
+
+static void *audio_thread(void *io) {
+    io = (phys_addr_t *)io;
+    struct timespec delay;
+
+    set_audio_volume(io, audio_volume);
+    while (audio_enabled) {
+        for (int i = 0; i < 62; i++) {
+            if (audio_enabled == 0) {
+                break;
+            }
+            set_audio_period(io, get_period(frequency[i]));
+            delay.tv_nsec = duration[i] * 1000;
+            clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, NULL);
+        }
+        set_audio_period(io, 0);
+        delay.tv_sec = 1;
+        clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, NULL);
+        delay.tv_sec = 0;
+    }
+    set_audio_volume(io, 0);
+    set_audio_period(io, 0);
+
+    return NULL;
 }

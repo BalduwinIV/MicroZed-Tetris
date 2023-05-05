@@ -12,7 +12,11 @@ typedef struct {
     unsigned char *KNOBS;
     unsigned char *KNOBS_DIRECT;
     unsigned char *LCD_MEM_BASE;
+    unsigned char *AUDIO_MEM_BASE;
+    unsigned char *AUDIO_VOLUME;
+    unsigned char *AUDIO_PERIOD;
 } phys_addr_t;
+
 
 /* Maps addresses in memory and returns structure that contains them. */
 phys_addr_t *init_io();
@@ -46,5 +50,11 @@ void set_led_rgb2_color(phys_addr_t *io, uint32_t color);
 
 /* Updates LCD display. */
 void lcd_display(phys_addr_t *io, uint16_t **screen);
+
+/* Sets audio output volume level. */
+void set_audio_volume(phys_addr_t *io, unsigned int volume_level);
+
+/* Sets audio output wave period. */
+void set_audio_period(phys_addr_t *io, unsigned int period);
 
 #endif
