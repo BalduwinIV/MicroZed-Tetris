@@ -31,6 +31,10 @@ phys_addr_t *init_io() {
 
     parlcd_hx8357_init(io->LCD_MEM_BASE);
 
+    io->AUDIO_MEM_BASE = map_phys_address(AUDIOPWM_REG_BASE_PHYS, AUDIOPWM_REG_SIZE, 0);
+    io->AUDIO_VOLUME = io->AUDIO_MEM_BASE + AUDIOPWM_REG_PWM_o;
+    io->AUDIO_PERIOD = io->AUDIO_MEM_BASE + AUDIOPWM_REG_PWMPER_o;
+
     return io;
 }
 
@@ -77,4 +81,12 @@ void lcd_display(phys_addr_t *io, uint16_t **screen) {
             parlcd_write_data(io->LCD_MEM_BASE, screen[y][x]);
         }
     }
+}
+
+void set_audio_volume(phys_addr_t *io, unsigned int volume_level) {
+    *(volatile uint32_t *)(io->AUDIO_VOLUME) = volume_level;
+}
+
+void set_audio_period(phys_addr_t *io, unsigned int period) {
+    *(volatile uint32_t *)(io->AUDIO_PERIOD) = period;
 }

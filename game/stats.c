@@ -5,6 +5,7 @@
 
 #include "tools/colors.h"
 #include "tools/font.h"
+#include "graphics.h"
 
 #define BLOCK_TYPES                     7
 #define STATISTICS_TEXT_POSITION_X      64
@@ -109,9 +110,48 @@ void print_best_score(unsigned short **screen, unsigned int best_score) {
     free(best_score_str);
 }
 
+void print_next_block(unsigned short **screen, unsigned char block_type) {
+    draw_rect(screen, 374, 145, 453, 184, BLACK_RGB565);
+    if (block_type == BLUE_FALLING_BLOCK_TYPE) {
+        draw_block(screen, 374, 155, block_type);
+        draw_block(screen, 394, 155, block_type);
+        draw_block(screen, 414, 155, block_type);
+        draw_block(screen, 434, 155, block_type);
+    } else if (block_type == DARKBLUE_FALLING_BLOCK_TYPE) {
+        draw_block(screen, 384, 145, block_type);
+        draw_block(screen, 384, 165, block_type);
+        draw_block(screen, 404, 165, block_type);
+        draw_block(screen, 424, 165, block_type);
+    } else if (block_type == ORANGE_FALLING_BLOCK_TYPE) {
+        draw_block(screen, 424, 145, block_type);
+        draw_block(screen, 384, 165, block_type);
+        draw_block(screen, 404, 165, block_type);
+        draw_block(screen, 424, 165, block_type);
+    } else if (block_type == YELLOW_FALLING_BLOCK_TYPE) {
+        draw_block(screen, 394, 145, block_type);
+        draw_block(screen, 394, 165, block_type);
+        draw_block(screen, 414, 145, block_type);
+        draw_block(screen, 414, 165, block_type);
+    } else if (block_type == GREEN_FALLING_BLOCK_TYPE) {
+        draw_block(screen, 404, 145, block_type);
+        draw_block(screen, 424, 145, block_type);
+        draw_block(screen, 384, 165, block_type);
+        draw_block(screen, 404, 165, block_type);
+    } else if (block_type == PURPLE_FALLING_BLOCK_TYPE) {
+        draw_block(screen, 404, 145, block_type);
+        draw_block(screen, 384, 165, block_type);
+        draw_block(screen, 404, 165, block_type);
+        draw_block(screen, 424, 165, block_type);
+    } else if (block_type == RED_FALLING_BLOCK_TYPE) {
+        draw_block(screen, 384, 145, block_type);
+        draw_block(screen, 404, 145, block_type);
+        draw_block(screen, 404, 165, block_type);
+        draw_block(screen, 424, 165, block_type);
+    }
+}
+
 void print_destroyed_lines_number(unsigned short **screen, unsigned int lines_amount) {
     char *lines_amount_str = int_to_str3(lines_amount);
     draw_string(screen, LINES_NUMBER_POSITION_X, LINES_NUMBER_POSITION_Y, lines_amount_str, WHITE_RGB565, BLACK_RGB565);
     free(lines_amount_str);
 }
-
