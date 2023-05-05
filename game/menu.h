@@ -8,6 +8,6 @@
 #define SHOW_NEXT_ELEMENT   2
 #define EXIT                3
 
-unsigned char menu(unsigned short** screen, phys_addr_t *io, unsigned char *blocks_speed, unsigned char *show_next_element);
+unsigned char menu(unsigned short** screen, phys_addr_t *io, unsigned char *blocks_speed, unsigned char *show_next_block);
 
 #endif

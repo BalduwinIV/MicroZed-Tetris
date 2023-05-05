@@ -1,41 +1,58 @@
-#include "pause.h"
+#include "gameover.h"
 
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdint.h>
 #include <time.h>
 
 #include "../hardware/io_address.h"
 #include "tools/font.h"
 #include "tools/colors.h"
 #include "graphics.h"
+#include "gamefield.h"
 
-#define OPTIONS_NUM                 2
-#define KNOB_DEAD_ZONE_VALUE        7
+#define GO_TO_MENU                  0
+
+#define OPTIONS_NUM                 1
+#define KNOB_DEAD_ZONE_VALUE        5
 #define MAX_TEXT_WIDTH              136
 #define TEXT_HEIGHT                 14
 #define TEXT_PADDING_Y              6
 #define TEXT_PADDING_X              20
 
-static int get_pause_position_x() {
+static void play_animation(unsigned short **screen, unsigned char **gamefield, phys_addr_t *io);
+
+unsigned char check_gameover(unsigned char **gamefield) {
+    for (int y = 0; y < GAMEFIELD_SIZE - 14; y++) {
+        for (int x = 0; x < 10; x++) {
+            if (gamefield[y][x] >= GREEN_BLOCK_TYPE && gamefield[y][x] <= BLUE_BLOCK_TYPE) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+static int get_gameover_menu_position_x() {
     return 240 - ((TEXT_PADDING_X * 2 + MAX_TEXT_WIDTH) / 2);
 }
 
-static int get_pause_position_y() {
+static int get_gameover_menu_position_y() {
     return 160 - (OPTIONS_NUM * (TEXT_PADDING_Y * 2 + TEXT_HEIGHT) / 2);
 }
 
-unsigned char pause(unsigned short **screen, phys_addr_t *io) {
-    int x = get_pause_position_x();
-    int y = get_pause_position_y();
+unsigned char gameover(unsigned short** screen, unsigned char **gamefield, phys_addr_t *io){
+    play_animation(screen, gamefield, io);
+    int x = get_gameover_menu_position_x();
+    int y = get_gameover_menu_position_y();
 
-    struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 14 * 1000 * 1000};
+    draw_rect(screen, 0, 0, 479, 319, BLACK_RGB565);
 
     int vote = 0;
     uint8_t green_knob_first_press = is_green_knob_pressed(io) ? 0 : 1;
     uint8_t green_knob_current_state_value = get_green_knob_value(io);
     uint8_t green_knob_previous_state_value = green_knob_current_state_value;
-
-    while(1) {
+    struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 14 * 1000 * 1000};
+    while (1) {
         if (is_green_knob_pressed(io) && green_knob_first_press) {
             green_knob_first_press = 0;
             break;
@@ -63,7 +80,7 @@ unsigned char pause(unsigned short **screen, phys_addr_t *io) {
             }
             green_knob_previous_state_value = green_knob_current_state_value;
         }
-
+      
         /* Paint background. */
         draw_rect(screen, x, y, x + 2 * TEXT_PADDING_X + MAX_TEXT_WIDTH, y + OPTIONS_NUM * (2 * TEXT_PADDING_Y + TEXT_HEIGHT), BLACK_RGB565);
 
@@ -71,21 +88,32 @@ unsigned char pause(unsigned short **screen, phys_addr_t *io) {
         /* Rectangles position depends on vote value. */
         draw_rect(screen, x, y + vote * (TEXT_HEIGHT + 2 * TEXT_PADDING_Y), x + 2 * TEXT_PADDING_X + MAX_TEXT_WIDTH, y + (vote + 1) * (TEXT_HEIGHT + 2 * TEXT_PADDING_Y), WHITE_RGB565);
 
-        if (vote == CONTINUE) {
-            draw_string(screen, x + TEXT_PADDING_X, y + TEXT_PADDING_Y, "CONTINUE", BLACK_RGB565, WHITE_RGB565);
-        } else {
-            draw_string(screen, x + TEXT_PADDING_X, y + TEXT_PADDING_Y, "CONTINUE", WHITE_RGB565, BLACK_RGB565);
-        }
-
+        /* If "NEW GAME" option is chosen, then draw it black on white background. */
+        /* White on black background otherwise. */
         if (vote == GO_TO_MENU) {
-            draw_string(screen, x + TEXT_PADDING_X, y + 3 * TEXT_PADDING_Y + TEXT_HEIGHT, "GO TO MENU", BLACK_RGB565, WHITE_RGB565);
+            draw_string(screen, x + TEXT_PADDING_X, y + TEXT_PADDING_Y, "GO TO MENU", BLACK_RGB565, WHITE_RGB565);
         } else {
-            draw_string(screen, x + TEXT_PADDING_X, y + 3 * TEXT_PADDING_Y + TEXT_HEIGHT, "GO TO MENU", WHITE_RGB565, BLACK_RGB565);
+            draw_string(screen, x + TEXT_PADDING_X, y + TEXT_PADDING_Y, "GO TO MENU", WHITE_RGB565, BLACK_RGB565);
         }
 
         lcd_display(io, screen);
         clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
     }
-
+    draw_rect(screen, 0, 0, 479, 319, BLACK_RGB565);
+    lcd_display(io, screen);
+    
     return vote;
+}
+
+static void play_animation(unsigned short **screen, unsigned char **gamefield, phys_addr_t *io) {
+    struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 14 * 1000 * 1000};
+
+    for (int y = 3; y < GAMEFIELD_SIZE; y++) {
+        for (int x = 0; x < 10; x++) {
+            gamefield[y][x] = ANIMATION_BLOCK_TYPE;
+        }
+        draw_gamefield(screen, gamefield);
+        lcd_display(io, screen);
+        clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
+    }
 }

@@ -48,19 +48,20 @@
 
 typedef struct {
     unsigned char type; /* Block type */
-    unsigned char x;    /* Blocks position */
-    unsigned char y;
+    int x;    /* Blocks position */
+    int y;
     unsigned char state; /* Blocks state (from 1 to 4) */
 } block_t;
 
 block_t * spawn_block(unsigned char **gamefield, unsigned char block_type);
 block_t * spawn_random_block(unsigned char **gamefield);
-unsigned char get_next_block_index();
-void move_block_right(unsigned char **gamefield, block_t *block);
-void move_block_left(unsigned char **gamefield, block_t *block);
-unsigned char move_block_down(unsigned char **gamefield, block_t *block);
-void drop_block(unsigned char **gamefield, block_t *block);
+unsigned char get_next_block_index(unsigned int *statistics, block_t *current_block);
+unsigned char move_block_right(unsigned char **gamefield, block_t *block);
+unsigned char move_block_left(unsigned char **gamefield, block_t *block);
+unsigned char move_block_down(unsigned char **gamefield, block_t *block, unsigned char *last_row);
+void drop_block(unsigned char **gamefield, block_t *block, unsigned char *last_row);
 void rotate_block_right(unsigned char **gamefield, block_t *block);
 void rotate_block_left(unsigned char **gamefield, block_t *block);
+unsigned int get_block_led_line_value(block_t *block);
 
 #endif

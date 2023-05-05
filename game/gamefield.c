@@ -5,50 +5,34 @@
 #include "tools/colors.h"
 #include "../hardware/io_address.h"
 #include "graphics.h"
+#include "block.h"
 
-unsigned char update_gamefield(unsigned char **gamefield, block_t *current_block, struct timespec *last_call_time, unsigned char blocks_speed) {
+static unsigned short blocks_type_array[7][4] = {
+    { BLOCK_S_TYPE_1, BLOCK_S_TYPE_2, BLOCK_S_TYPE_3, BLOCK_S_TYPE_4 },
+    { BLOCK_Z_TYPE_1, BLOCK_Z_TYPE_2, BLOCK_Z_TYPE_3, BLOCK_Z_TYPE_4 },
+    { BLOCK_T_TYPE_1, BLOCK_T_TYPE_2, BLOCK_T_TYPE_3, BLOCK_T_TYPE_4 },
+    { BLOCK_SQUARE_TYPE, BLOCK_SQUARE_TYPE, BLOCK_SQUARE_TYPE, BLOCK_SQUARE_TYPE },
+    { BLOCK_L_REVERSED_TYPE_1, BLOCK_L_REVERSED_TYPE_2, BLOCK_L_REVERSED_TYPE_3, BLOCK_L_REVERSED_TYPE_4 },
+    { BLOCK_L_TYPE_1, BLOCK_L_TYPE_2, BLOCK_L_TYPE_3, BLOCK_L_TYPE_4 },
+    { BLOCK_I_TYPE_1, BLOCK_I_TYPE_2, BLOCK_I_TYPE_3, BLOCK_I_TYPE_4 }
+};
+
+unsigned char update_gamefield(unsigned char **gamefield, block_t *current_block, struct timespec *last_call_time, unsigned char blocks_speed, unsigned char *last_row) {
     unsigned char spawn_new_block = 0;
     struct timespec current_time = {.tv_sec = 0, .tv_nsec = 0};
     clock_gettime(CLOCK_MONOTONIC, &current_time);
 
-    if ((current_time.tv_sec + current_time.tv_nsec * 1.0e-9) - (last_call_time->tv_sec + last_call_time->tv_nsec * 1.0e-9) > 1.0 / blocks_speed) {
+    if ((current_time.tv_sec + current_time.tv_nsec * 1.0e-9) - (last_call_time->tv_sec + last_call_time->tv_nsec * 1.0e-9) > (1.0 / blocks_speed) + (*last_row * 1.0 / blocks_speed)) {
         clock_gettime(CLOCK_MONOTONIC, last_call_time);
-        unsigned char is_current_block_moved = 0;
-        for (int row = GAMEFIELD_SIZE-1; row >= 0; row--) {
-            for (int col = 0; col < 10; col++) {
-                if (row < GAMEFIELD_SIZE-1) {
-                    if ((gamefield[row][col] == GREEN_FALLING_BLOCK_TYPE) || 
-                            (gamefield[row][col] == RED_FALLING_BLOCK_TYPE) ||
-                            (gamefield[row][col] == PURPLE_FALLING_BLOCK_TYPE) ||
-                            (gamefield[row][col] == YELLOW_FALLING_BLOCK_TYPE) ||
-                            (gamefield[row][col] == DARKBLUE_FALLING_BLOCK_TYPE) ||
-                            (gamefield[row][col] == ORANGE_FALLING_BLOCK_TYPE) ||
-                            (gamefield[row][col] == BLUE_FALLING_BLOCK_TYPE)) {
-                        if (gamefield[row+1][col] == NO_BLOCK) {
-                            is_current_block_moved = 1;
-                            gamefield[row+1][col] = gamefield[row][col];
-                            gamefield[row][col] = NO_BLOCK;
-                        } else {
-                            spawn_new_block = 1;
-                            gamefield[row][col] = gamefield[row][col] - 7;
-                        }
-                    }
-                } else {
-                    if ((gamefield[row][col] == GREEN_FALLING_BLOCK_TYPE) || 
-                            (gamefield[row][col] == RED_FALLING_BLOCK_TYPE) ||
-                            (gamefield[row][col] == PURPLE_FALLING_BLOCK_TYPE) ||
-                            (gamefield[row][col] == YELLOW_FALLING_BLOCK_TYPE) ||
-                            (gamefield[row][col] == DARKBLUE_FALLING_BLOCK_TYPE) ||
-                            (gamefield[row][col] == ORANGE_FALLING_BLOCK_TYPE) ||
-                            (gamefield[row][col] == BLUE_FALLING_BLOCK_TYPE)) {
-                        spawn_new_block = 1;
-                        gamefield[row][col] = gamefield[row][col] - 7;
-                    }
+        if (*last_row) {
+            for (int pixel_i = 0; pixel_i < 16; pixel_i++) {
+                if ((current_block->y + pixel_i/4 >= 0) && (current_block->y + pixel_i/4 < GAMEFIELD_SIZE) && (current_block->x + pixel_i%4 >= 0) && (current_block->x + pixel_i%4 < 10)) {
+                    gamefield[current_block->y + pixel_i/4][current_block->x + pixel_i%4] = (blocks_type_array[current_block->type-8][current_block->state] & (0x8000 >> pixel_i)) ? current_block->type-7 : gamefield[current_block->y + pixel_i/4][current_block->x + pixel_i%4]; 
                 }
             }
         }
-        if (is_current_block_moved) {
-            current_block->y += 1;
+        if (!move_block_down(gamefield, current_block, last_row)) {
+            spawn_new_block = 1;
         }
     }
     return spawn_new_block;
