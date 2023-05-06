@@ -59,7 +59,10 @@ void draw_checkbox(unsigned short **screen, int x, int y, unsigned char state) {
 }
 
 void draw_block(unsigned short **screen, int x, int y, unsigned char block_type) {
-    unsigned int main_color, top_color, sides_color, bottom_color;
+    unsigned int main_color = BLACK_RGB565;
+    unsigned int top_color = BLACK_RGB565;
+    unsigned int sides_color = BLACK_RGB565;
+    unsigned int bottom_color = BLUE_RGB565;
 
     if (block_type == NO_BLOCK) {
         main_color = BLACK_RGB565;
