@@ -91,6 +91,7 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char *blocks_
 
     printf("Starting game loop...");
     struct timespec loop_delay = {.tv_sec = 0, .tv_nsec = 14 * 1000 * 1000};
+    struct timespec new_block_delay = {.tv_sec = 0, .tv_nsec = 52 * 1000 * 1000};
     struct timespec update_call_time = {.tv_sec = 0, .tv_nsec = 0};
     clock_gettime(CLOCK_MONOTONIC, &update_call_time);
 
@@ -198,6 +199,7 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char *blocks_
                 audio_enabled = 0;
                 break;
             }
+            clock_nanosleep(CLOCK_MONOTONIC, 0, &new_block_delay, NULL);
         } 
         if (!red_knob_first_press && !is_red_knob_pressed(io)) {
             red_knob_first_press = 1;
@@ -305,33 +307,34 @@ static void set_best_score(unsigned int value) {
 #define A6      880.0
 #define G6      783.99087
 
+#define DURATION_1      203125   
+#define DURATION_2      406250
+#define DURATION_3      609375
+#define DURATION_4      812500
+#define DURATION_5      1015625
+
+#define SONG_DURATION   37
+
 double frequency[] = {
-    E6, B5, C6, D6, C6, B5, A5, A5,
-    C6, E6, D6, C6, B5, C6, D6, E6, 
-    C6, A5, 
-    A5, A5, B5, C6, D6, F6, A6, G6, 
-    F6, E6, C6, E6, D6, C6, B5, B5, 
-    C6, D6,
-    E6, C6, A5, A5,
-
-    A5, A5, B5, C6, D6, F6, A6, G6, 
-    F6, E6, C6, E6, D6, C6, B5, B5, 
-    C6, D6,
-    E6, C6, A5, A5
+    E6, B5, C6, D6, C6, B5,
+    A5, A5, C6, E6, D6, C6,
+    B5, B5, C6, D6, E6,
+    C6, A5, A5,
+    D6, F6, A6,
+    G6, F6, E6, 
+    C6, E6, D6, C6, B5,
+    C6, D6, E6, C6, A5, A5
 };
-unsigned int duration[] = {
-    406250, 203125, 203125, 406250, 203125, 203125, 406250, 203125, 
-    203125, 406250, 203125, 203125, 609375, 203125, 406250, 406250, 
-    406250, 406250, 
-    203125, 203125, 203125, 203125, 609375, 203125, 406250, 203125, 
-    203125, 609375, 203125, 406250, 203125, 203125, 203125, 203125, 
-    203125, 406250, 
-    406250, 406250, 406250, 406250,
 
-    203125, 203125, 203125, 203125, 609375, 203125, 406250, 203125, 
-    203125, 609375, 203125, 406250, 203125, 203125, 203125, 203125, 
-    203125, 406250, 
-    406250, 406250, 406250, 406250
+unsigned int duration[] = {
+    DURATION_2, DURATION_1, DURATION_1, DURATION_2, DURATION_1, DURATION_1,
+    DURATION_2, DURATION_1, DURATION_1, DURATION_2, DURATION_1, DURATION_1, 
+    DURATION_2, DURATION_1, DURATION_1, DURATION_2, DURATION_2,
+    DURATION_2, DURATION_2, DURATION_5,
+    DURATION_2, DURATION_1, DURATION_2,
+    DURATION_1, DURATION_1, DURATION_3,
+    DURATION_1, DURATION_2, DURATION_1, DURATION_1, DURATION_3,
+    DURATION_1, DURATION_2, DURATION_2, DURATION_2, DURATION_2, DURATION_4
 };
 
 unsigned int get_period(double frequency) {
@@ -344,18 +347,24 @@ static void *audio_thread(void *io) {
 
     set_audio_volume(io, audio_volume);
     while (audio_enabled) {
-        for (int i = 0; i < 62; i++) {
+        for (int i = 0; i < 37; i++) {
             if (audio_enabled == 0) {
                 break;
             }
             set_audio_period(io, get_period(frequency[i]));
-            delay.tv_nsec = duration[i] * 1000;
-            clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, NULL);
+            if (duration[i] == DURATION_5) {
+                delay.tv_sec = 1;
+                delay.tv_nsec = (DURATION_5 % 1000000) * 1000;
+                clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, NULL);
+            } else {
+                delay.tv_sec = 0;
+                delay.tv_nsec = duration[i] * 1000;
+                clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, NULL);
+            }
         }
         set_audio_period(io, 0);
         delay.tv_sec = 1;
         clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, NULL);
-        delay.tv_sec = 0;
     }
     set_audio_volume(io, 0);
     set_audio_period(io, 0);
