@@ -1,3 +1,5 @@
+/* Pause main file. */
+
 #ifndef PAUSE_H
 #define PAUSE_H
 

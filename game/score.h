@@ -1,3 +1,5 @@
+/* Score calculating function file. */
+
 #ifndef SCORE_H
 #define SCORE_H
 

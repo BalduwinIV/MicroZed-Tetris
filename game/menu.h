@@ -1,3 +1,5 @@
+/* Menu main file. */
+
 #ifndef MENU_H
 #define MENU_H
 
