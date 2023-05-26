@@ -7,6 +7,7 @@
 #include "background.h"
 #include "gamefield.h"
 
+/* For testing static screen images (background, gameover and etc.) */
 /* Undefine when working with hardware. */
 /* #define TESTING */
 

@@ -16,6 +16,7 @@ static unsigned short blocks_type_array[7][4] = {
     { BLOCK_I_TYPE_1, BLOCK_I_TYPE_2, BLOCK_I_TYPE_3, BLOCK_I_TYPE_4 }
 };
 
+/* Draws given block on the gamefield. */
 static void draw_figure(unsigned char **gamefield, block_t *block) {
     for (int pixel_i = 0; pixel_i < 16; pixel_i++) {
         if ((block->y + pixel_i/4 >= 0) && (block->y + pixel_i/4 < GAMEFIELD_SIZE) && (block->x + pixel_i%4 >= 0) && (block->x + pixel_i%4 < 10)) {
@@ -24,6 +25,7 @@ static void draw_figure(unsigned char **gamefield, block_t *block) {
     }
 }
 
+/* Erases block from the gamefield. */
 static void erase_block(unsigned char **gamefield, block_t *block) {
     for (int pixel_i = 0; pixel_i < 16; pixel_i++) {
         if ((block->y + pixel_i/4 >= 0) && (block->y + pixel_i/4 < GAMEFIELD_SIZE) && (block->x + pixel_i%4 >= 0) && (block->x + pixel_i%4 < 10)) {
@@ -32,6 +34,7 @@ static void erase_block(unsigned char **gamefield, block_t *block) {
     }
 }
 
+/* Checks if given position is free on the gamefield. */
 static unsigned char is_free(unsigned char **gamefield, int x, int y) {
     if ((y >= 0) && (y < GAMEFIELD_SIZE) && (x >= 0) && (x < 10)) {
         return (gamefield[y][x] == NO_BLOCK) ? 1 : 0;
@@ -564,6 +567,7 @@ unsigned char move_block_left(unsigned char **gamefield, block_t *block) {
     return 0;
 }
 
+/* Checks if it is possible to move block down. */
 unsigned char possible_to_move_block_down(unsigned char **gamefield, block_t *block) {
     if (block->type == BLUE_FALLING_BLOCK_TYPE) {
         if (block->state == 0) {

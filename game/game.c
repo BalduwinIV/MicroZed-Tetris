@@ -17,16 +17,14 @@
 #include "block.h"
 #include "score.h"
 #include "gameover.h"
+#include "bestscore.h"
 
-#define BEST_SCORE_FILENAME     "bestscore.data"
 #define MAX_BLOCKS_SPEED        24
 #define KNOB_DEAD_ZONE_VALUE    3
 
 unsigned char audio_volume = 30;
 unsigned char audio_enabled;
 
-static unsigned int get_best_score();
-static void set_best_score(unsigned int value);
 static void *audio_thread(void *io);
 
 void start_game(unsigned short **screen, phys_addr_t *io, unsigned char *blocks_speed, unsigned char *show_next_element, unsigned char *enable_audio) {
@@ -35,7 +33,7 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char *blocks_
     unsigned int statistics[7] = {0, 0, 0, 0, 0, 0, 0};
     unsigned int score = 0;
     unsigned int next_level_score_trigger = *blocks_speed * 1000;
-    unsigned int best_score = get_best_score();
+    unsigned int bestscore = get_bestscore();
     unsigned int lines_number = 0;
 
     unsigned int blocks_led_colors[7] = { GREEN_RGB888, RED_RGB888, PURPLE_RGB888, YELLOW_RGB888, DARKBLUE_RGB888, ORANGE_RGB888, BLUE_RGB888 };
@@ -76,8 +74,8 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char *blocks_
     draw_background(screen);
     print_statistics(screen, statistics);
     print_score(screen, score);
-    print_best_score(screen, best_score);
-    if (show_next_element) {
+    print_best_score(screen, bestscore);
+    if (*show_next_element) {
         print_next_block(screen, next_block_index);
         set_led_rgb1_color(io, blocks_led_colors[current_block->type-8]);
         set_led_rgb2_color(io, blocks_led_colors[next_block_index-8]);
@@ -117,8 +115,8 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char *blocks_
             draw_background(screen);
             print_statistics(screen, statistics);
             print_score(screen, score);
-            print_best_score(screen, best_score);
-            if (show_next_element) {
+            print_best_score(screen, bestscore);
+            if (*show_next_element) {
                 print_next_block(screen, next_block_index);
                 set_led_rgb1_color(io, blocks_led_colors[current_block->type-8]);
                 set_led_rgb2_color(io, blocks_led_colors[next_block_index-8]);
@@ -195,7 +193,7 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char *blocks_
 
             if (check_gameover(gamefield)) {
                 printf("Gameover...\n");
-                gameover(screen, gamefield, io);
+                gameover(screen, gamefield, io, statistics, &score, &lines_number);
                 audio_enabled = 0;
                 break;
             }
@@ -210,13 +208,14 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char *blocks_
             move_block_down(gamefield, current_block, &last_row);
         }
 
+        /* Updates gamefield if necessary */
         if (update_gamefield(gamefield, current_block, &update_call_time, *blocks_speed, &last_row)) {
             cleared_rows_at_the_moment = clear_rows(gamefield, screen, io, *blocks_speed);
             if (cleared_rows_at_the_moment > 0) {
                 score += calculate_score(*blocks_speed, cleared_rows_at_the_moment);
                 if (*blocks_speed < MAX_BLOCKS_SPEED) {
                     while (score > next_level_score_trigger) {
-                        blocks_speed++;
+                        (*blocks_speed)++;
                         next_level_score_trigger *= 2;
 
                         printf("Blocks speed became %d, next level score trigger = %d\n", *blocks_speed, next_level_score_trigger);
@@ -244,7 +243,7 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char *blocks_
 
             if (check_gameover(gamefield)) {
                 printf("Gameover...\n");
-                gameover(screen, gamefield, io);
+                gameover(screen, gamefield, io, statistics, &score, &lines_number);
                 audio_enabled = 0;
                 break;
             }
@@ -257,6 +256,11 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char *blocks_
         clock_nanosleep(CLOCK_MONOTONIC, 0, &loop_delay, NULL);
     }
 
+    if (score > bestscore) {
+        printf("Setting a new bestscore: %d\n", score);
+        set_bestscore(score);
+    }
+
     set_led_line_value(io, 0x00000000);
     set_led_rgb1_color(io, BLACK_RGB888);
     set_led_rgb2_color(io, BLACK_RGB888);
@@ -266,38 +270,9 @@ void start_game(unsigned short **screen, phys_addr_t *io, unsigned char *blocks_
     }
     free(gamefield);
     free(current_block);
-    if (score > best_score) {
-        set_best_score(score);
-    }
 }
 
-static unsigned int get_best_score() {
-    FILE *bestscore_f = fopen(BEST_SCORE_FILENAME, "rb");
-    if (!bestscore_f) {
-        return 0;
-    }
-
-    unsigned int return_value = (getc(bestscore_f)) | (getc(bestscore_f) << 8) | (getc(bestscore_f) << 16) | (getc(bestscore_f) << 24);
-    fclose(bestscore_f);
-
-    printf("Best score is %d.\n", return_value);
-    return return_value;
-}
-
-static void set_best_score(unsigned int value) {
-    FILE *bestscore_f = fopen(BEST_SCORE_FILENAME, "wb");
-    if (!bestscore_f) {
-        fprintf(stderr, "Error writing data for bestscore.data file.\n");
-    } else {
-        printf("Writing bestscore to file: (%d) %x %x %x %x.\n", value, (value & 0xff000000) >> 24, (value & 0x00ff0000) >> 16, (value & 0x0000ff00) >> 8, value & 0x000000ff);
-        fputc(value & 0x000000ff, bestscore_f);
-        fputc((value & 0x0000ff00) >> 8, bestscore_f);
-        fputc((value & 0x00ff0000) >> 16, bestscore_f);
-        fputc((value & 0xff000000) >> 24, bestscore_f);
-    }
-    fclose(bestscore_f);
-}
-
+/* Tetris song definition. */
 #define E6      659.25511
 #define B5      493.8833
 #define C6      523.25113
@@ -337,7 +312,7 @@ unsigned int duration[] = {
     DURATION_1, DURATION_2, DURATION_2, DURATION_2, DURATION_2, DURATION_4
 };
 
-unsigned int get_period(double frequency) {
+static unsigned int get_period(double frequency) {
     return (unsigned int)(100000000/frequency);
 }
 

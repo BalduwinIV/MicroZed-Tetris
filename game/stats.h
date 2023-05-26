@@ -1,3 +1,5 @@
+/* File for printing statistics. */
+
 #ifndef STATS_H
 #define STATS_H
 

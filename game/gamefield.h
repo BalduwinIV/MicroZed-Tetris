@@ -1,3 +1,5 @@
+/* Updating gamefield methods. */
+
 #ifndef GAMEFIELD_H
 #define GAMEFIELD_H
 

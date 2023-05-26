@@ -4,27 +4,10 @@
 /* [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
  *   A, B, C, D, E, F, G, H, I, J,
  *   K, L, M, N, O, P, Q, R, S, T,
- *   U, V, W, X, Y, Z] */
+ *   U, V, W, X, Y, Z, !, ?, (, ), 
+ *   <, >, <unknown character>] */
 
-/*
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-        0x
-
-*/
-
-static unsigned short characters[43][14] = {
+static unsigned short characters[FONT_SIZE][14] = {
     /*
      * |  ******  |
      * | ******** |
@@ -1416,6 +1399,40 @@ static unsigned short characters[43][14] = {
         0x6000,
         0x6000
     },
+
+    /*
+     * |          |
+     * |          |
+     * |          |
+     * |          |
+     * |          |
+     * |          |
+     * |**********|
+     * |**********|
+     * |          |
+     * |          |
+     * |          |
+     * |          |
+     * |          |
+     * |          |
+     * */
+    {
+        0x0000,
+        0x0000,
+        0x0000,
+        0x0000,
+        0x0000,
+        0x0000,
+        0xffc0,
+        0xffc0,
+        0x0000,
+        0x0000,
+        0x0000,
+        0x0000,
+        0x0000,
+        0x0000
+    },
+
     /* unknown character 
      * |* * * * * |
      * | * * * * *|
@@ -1491,8 +1508,10 @@ static void draw_char(unsigned short **screen, int x, int y, char ch, unsigned i
         wanted_ch = 40;
     } else if (ch == '>') {
         wanted_ch = 41;
-    } else {
+    } else if (ch == '-') {
         wanted_ch = 42;
+    } else {
+        wanted_ch = 43;
     }
 
     for (int font_y = 0; font_y < 14; font_y++) {
@@ -1518,3 +1537,21 @@ void draw_string(unsigned short **screen, int x, int y, char *str, unsigned int 
     }
 }
 
+void draw_font_character(unsigned short **screen, int x, int y, unsigned char ch_i, unsigned int fg_color, unsigned int bg_color) {
+    if (ch_i >= FONT_SIZE) {
+        draw_whitespace(screen, x, y, bg_color);
+    } else {
+        for (int font_y = 0; font_y < 14; font_y++) {
+            screen[y+font_y][x] = (characters[ch_i][font_y] & 0x8000) ? fg_color : bg_color;    /* 1st bit */
+            screen[y+font_y][x+1] = (characters[ch_i][font_y] & 0x4000) ? fg_color : bg_color;  /* 2nd bit */
+            screen[y+font_y][x+2] = (characters[ch_i][font_y] & 0x2000) ? fg_color : bg_color;  /* 3rd bit */
+            screen[y+font_y][x+3] = (characters[ch_i][font_y] & 0x1000) ? fg_color : bg_color;  /* 4th bit */
+            screen[y+font_y][x+4] = (characters[ch_i][font_y] & 0x0800) ? fg_color : bg_color;  /* 5th bit */
+            screen[y+font_y][x+5] = (characters[ch_i][font_y] & 0x0400) ? fg_color : bg_color;  /* 6th bit */
+            screen[y+font_y][x+6] = (characters[ch_i][font_y] & 0x0200) ? fg_color : bg_color;  /* 7th bit */
+            screen[y+font_y][x+7] = (characters[ch_i][font_y] & 0x0100) ? fg_color : bg_color;  /* 8th bit */
+            screen[y+font_y][x+8] = (characters[ch_i][font_y] & 0x0080) ? fg_color : bg_color;  /* 9th bit */
+            screen[y+font_y][x+9] = (characters[ch_i][font_y] & 0x0040) ? fg_color : bg_color;  /* 10th bit */
+        }
+    }
+}

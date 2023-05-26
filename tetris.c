@@ -15,6 +15,7 @@
 #include "game/game.h"
 #include "game/menu.h"
 #include "game/graphics.h"
+#include "game/bestscore.h"
 
 #define SCREEN_WIDTH    480
 #define SCREEN_HEIGHT   320
